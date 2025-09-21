@@ -299,7 +299,7 @@ const Patients = () => {
                     {patient.photo ? (
                       <img
                         src={patient.photo}
-                        alt={`Foto de ${patient.name}`}
+                        alt={`Foto de ${patient.full_name}`}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -310,10 +310,10 @@ const Patients = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <CardTitle className="text-sm sm:text-base font-semibold truncate group-hover:text-primary transition-colors">
-                      {patient.name}
+                      {patient.full_name}
                     </CardTitle>
                     <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                      {patient.age} anos
+                      {getAge(patient.birth_date)} anos
                     </p>
                   </div>
                 </div>
@@ -324,26 +324,20 @@ const Patients = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-muted-foreground">Leito:</span>
-                  <span className="font-medium">{patient.room}</span>
+                  <span className="font-medium">{patient.bed}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
-                  <span className="text-muted-foreground">Diagnóstico:</span>
-                  <span className="font-medium truncate ml-2" title={patient.diagnosis}>
-                    {patient.diagnosis}
-                  </span>
+                  <span className="text-muted-foreground">Status:</span>
+                  <Badge className={`text-xs ${getStatusColor(patient.status || 'estavel')}`}>
+                    {getStatusLabel(patient.status || 'estavel')}
+                  </Badge>
                 </div>
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <span className="text-muted-foreground">Admissão:</span>
                   <span className="font-medium">
-                    {new Date(patient.admissionDate).toLocaleDateString('pt-BR')}
+                    {patient.admission_date ? new Date(patient.admission_date).toLocaleDateString('pt-BR') : 'N/A'}
                   </span>
                 </div>
-                {patient.familyAccess && (
-                  <div className="flex items-center gap-1 pt-1">
-                    <Shield className="h-3 w-3 text-green-500" />
-                    <span className="text-xs text-green-600 font-medium">Acesso Familiar</span>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
@@ -373,15 +367,18 @@ const Patients = () => {
       )}
 
       {/* Modals */}
-      <PatientForm 
-        open={showPatientForm} 
-        onOpenChange={setShowPatientForm}
-        onSuccess={() => setShowPatientForm(false)}
-      />
+      {showPatientForm && (
+        <PatientForm 
+          onClose={() => setShowPatientForm(false)}
+          onSuccess={() => setShowPatientForm(false)}
+        />
+      )}
       
-      <CredentialsModal 
-        open={showCredentialsModal} 
-        onOpenChange={setShowCredentialsModal} 
+      <FamilyCredentialsModal 
+        isOpen={showCredentialsModal} 
+        onClose={() => setShowCredentialsModal(false)}
+        credentials={currentCredentials}
+        patientName={currentPatientName}
       />
     </div>
   )
