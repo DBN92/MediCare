@@ -41,8 +41,10 @@ import {
   X,
   Key,
   User,
-  MoreVertical
+  MoreVertical,
+  Upload
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const Patients = () => {
   const [searchTerm, setSearchTerm] = useState("")
@@ -56,14 +58,22 @@ const Patients = () => {
   const [currentPatientName, setCurrentPatientName] = useState("")
   const [currentPatientId, setCurrentPatientId] = useState("")
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
-  const [editFormData, setEditFormData] = useState({
+  const [editFormData, setEditFormData] = useState<{
+    full_name: string;
+    birth_date: string;
+    admission_date: string;
+    bed: string;
+    notes: string;
+    photo: string;
+    status: "estavel" | "instavel" | "em_observacao" | "em_alta";
+  }>({
     full_name: "",
     birth_date: "",
     admission_date: "",
     bed: "",
     notes: "",
     photo: "",
-    status: "estavel" as const
+    status: "estavel"
   })
   const [editPhotoPreview, setEditPhotoPreview] = useState<string | null>(null)
   const [selectedRole, setSelectedRole] = useState<FamilyRole>('editor')
@@ -289,12 +299,14 @@ const Patients = () => {
         {filteredPatients.map((patient) => (
           <Card 
             key={patient.id} 
-            className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] group"
-            onClick={() => navigate(`/care/${patient.id}`)}
+            className="hover:shadow-md transition-all duration-200 hover:scale-[1.02] group relative"
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div 
+                  className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer"
+                  onClick={() => navigate(`/care/${patient.id}`)}
+                >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary/20 flex-shrink-0">
                     {patient.photo ? (
                       <img
@@ -317,7 +329,73 @@ const Patients = () => {
                     </p>
                   </div>
                 </div>
-                <MoreVertical className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedPatient(patient)
+                            setShowViewModal(true)
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="bg-amber-900 text-amber-100 border-amber-800">
+                        <p>Visualizar paciente</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleEditPatient(patient)
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="bg-amber-900 text-amber-100 border-amber-800">
+                        <p>Editar paciente</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleSharePatient(patient.id, patient.full_name)
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-purple-100 hover:text-purple-700"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="bg-amber-900 text-amber-100 border-amber-800">
+                        <p>Compartilhar acesso</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -373,6 +451,330 @@ const Patients = () => {
           onSuccess={() => setShowPatientForm(false)}
         />
       )}
+      
+      {/* View Patient Modal */}
+      <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Paciente</DialogTitle>
+            <DialogDescription>
+              Informações completas do paciente selecionado
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPatient && (
+            <div className="space-y-4">
+              {/* Patient Photo */}
+              <div className="flex justify-center">
+                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
+                  {selectedPatient.photo ? (
+                    <img
+                      src={selectedPatient.photo}
+                      alt={`Foto de ${selectedPatient.full_name}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                      <User className="h-8 w-8 text-primary/60" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Patient Info */}
+              <div className="grid gap-3">
+                <div>
+                  <Label className="text-sm font-medium">Nome Completo</Label>
+                  <p className="text-sm text-muted-foreground">{selectedPatient.full_name}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium">Idade</Label>
+                    <p className="text-sm text-muted-foreground">{getAge(selectedPatient.birth_date)} anos</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Leito</Label>
+                    <p className="text-sm text-muted-foreground">{selectedPatient.bed}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium">Status</Label>
+                    <Badge className={`text-xs w-fit ${getStatusColor(selectedPatient.status || 'estavel')}`}>
+                      {getStatusLabel(selectedPatient.status || 'estavel')}
+                    </Badge>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Data de Admissão</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedPatient.admission_date ? new Date(selectedPatient.admission_date).toLocaleDateString('pt-BR') : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+                {selectedPatient.notes && (
+                  <div>
+                    <Label className="text-sm font-medium">Observações</Label>
+                    <p className="text-sm text-muted-foreground">{selectedPatient.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowViewModal(false)}>
+              Fechar
+            </Button>
+            <Button onClick={() => {
+              setShowViewModal(false)
+              if (selectedPatient) {
+                handleEditPatient(selectedPatient)
+              }
+            }}>
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Patient Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Paciente</DialogTitle>
+            <DialogDescription>
+              Atualize as informações do paciente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
+                {editPhotoPreview ? (
+                  <img
+                    src={editPhotoPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                    <User className="h-8 w-8 text-primary/60" />
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('edit-photo-input')?.click()}
+                  className="text-xs"
+                >
+                  <Upload className="h-3 w-3 mr-1" />
+                  {editPhotoPreview ? 'Alterar' : 'Adicionar'}
+                </Button>
+                {editPhotoPreview && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveEditPhoto}
+                    className="text-xs"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Remover
+                  </Button>
+                )}
+              </div>
+              <input
+                id="edit-photo-input"
+                type="file"
+                accept="image/*"
+                onChange={handleEditPhotoChange}
+                className="hidden"
+              />
+            </div>
+
+            {/* Form Fields */}
+            <div className="grid gap-3">
+              <div>
+                <Label htmlFor="edit-full_name">Nome Completo *</Label>
+                <Input
+                  id="edit-full_name"
+                  name="full_name"
+                  value={editFormData.full_name}
+                  onChange={handleEditFormChange}
+                  placeholder="Nome completo do paciente"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="edit-birth_date">Data de Nascimento *</Label>
+                  <Input
+                    id="edit-birth_date"
+                    name="birth_date"
+                    type="date"
+                    value={editFormData.birth_date}
+                    onChange={handleEditFormChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-bed">Leito *</Label>
+                  <Input
+                    id="edit-bed"
+                    name="bed"
+                    value={editFormData.bed}
+                    onChange={handleEditFormChange}
+                    placeholder="Ex: L001"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="edit-admission_date">Data de Admissão</Label>
+                  <Input
+                    id="edit-admission_date"
+                    name="admission_date"
+                    type="date"
+                    value={editFormData.admission_date}
+                    onChange={handleEditFormChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select 
+                    value={editFormData.status} 
+                    onValueChange={(value: "estavel" | "instavel" | "em_observacao" | "em_alta") => setEditFormData(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="estavel">Estável</SelectItem>
+                      <SelectItem value="instavel">Instável</SelectItem>
+                      <SelectItem value="em_observacao">Em Observação</SelectItem>
+                      <SelectItem value="em_alta">Em Alta</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="edit-notes">Observações</Label>
+                <Textarea
+                  id="edit-notes"
+                  name="notes"
+                  value={editFormData.notes}
+                  onChange={handleEditFormChange}
+                  placeholder="Observações sobre o paciente..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditModal(false)} disabled={updating}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdatePatient} disabled={updating}>
+              {updating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                'Salvar Alterações'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Role Selection Modal */}
+      <Dialog open={showRoleSelectionModal} onOpenChange={setShowRoleSelectionModal}>
+        <DialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-[400px] sm:mx-auto sm:w-full">
+          <DialogHeader>
+            <DialogTitle className="text-lg sm:text-xl">Compartilhar Acesso</DialogTitle>
+            <DialogDescription className="text-sm">
+              Selecione o tipo de acesso para {currentPatientName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="role-select" className="text-sm font-medium">Tipo de Acesso</Label>
+              <Select 
+                value={selectedRole} 
+                onValueChange={(value: FamilyRole) => setSelectedRole(value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o tipo de acesso" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Visualizador</span>
+                      <span className="text-xs text-muted-foreground">Apenas visualizar informações</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="editor">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">Editor</span>
+                      <span className="text-xs text-muted-foreground">Visualizar e registrar cuidados</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-900 mb-2">Sobre os tipos de acesso:</p>
+                  <div className="space-y-2 text-blue-700">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                      <strong className="text-xs sm:text-sm">Visualizador:</strong> 
+                      <span className="text-xs sm:text-sm">Pode apenas ver informações do paciente</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                      <strong className="text-xs sm:text-sm">Editor:</strong> 
+                      <span className="text-xs sm:text-sm">Pode ver informações e registrar cuidados</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowRoleSelectionModal(false)}
+              disabled={generatingToken}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleGenerateTokenWithRole}
+              disabled={generatingToken}
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
+              {generatingToken ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Key className="h-4 w-4 mr-2" />
+                  Gerar Credenciais
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <FamilyCredentialsModal 
         isOpen={showCredentialsModal} 

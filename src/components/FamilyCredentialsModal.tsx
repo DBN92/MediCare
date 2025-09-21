@@ -49,22 +49,22 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="mx-4 w-[calc(100vw-2rem)] max-w-2xl sm:mx-auto sm:w-full max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <User className="h-5 w-5" />
             Credenciais de Acesso Familiar
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Credenciais geradas para acesso aos dados de {patientName}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Alert de Segurança */}
           <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <AlertDescription className="text-sm">
               <strong>Importante:</strong> Compartilhe essas credenciais apenas com familiares autorizados. 
               Elas permitem acesso completo aos dados médicos do paciente.
             </AlertDescription>
@@ -72,9 +72,9 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
 
           {/* Credenciais */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Dados de Acesso</CardTitle>
-              <CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Dados de Acesso</CardTitle>
+              <CardDescription className="text-sm">
                 Use essas credenciais para fazer login no sistema
               </CardDescription>
             </CardHeader>
@@ -84,24 +84,26 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
                 <Label htmlFor="username" className="text-sm font-medium">
                   Usuário
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     id="username"
                     value={credentials.username}
                     readOnly
-                    className="font-mono"
+                    className="font-mono text-sm flex-1"
                   />
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => copyToClipboard(credentials.username, 'Usuário')}
-                    className={copiedField === 'Usuário' ? 'bg-green-50 border-green-200' : ''}
+                    className={`w-full sm:w-auto ${copiedField === 'Usuário' ? 'bg-green-50 border-green-200' : ''}`}
                   >
                     {copiedField === 'Usuário' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 mr-2" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4 mr-2" />
                     )}
+                    <span className="sm:hidden">Copiar Usuário</span>
+                    <span className="hidden sm:inline">Copiar</span>
                   </Button>
                 </div>
               </div>
@@ -111,18 +113,18 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
                 <Label htmlFor="password" className="text-sm font-medium">
                   Senha
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       value={credentials.password}
                       readOnly
-                      className="font-mono pr-10"
+                      className="font-mono text-sm pr-10"
                     />
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="sm"
                       className="absolute right-0 top-0 h-full px-3"
                       onClick={() => setShowPassword(!showPassword)}
                     >
@@ -135,15 +137,17 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
                   </div>
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => copyToClipboard(credentials.password, 'Senha')}
-                    className={copiedField === 'Senha' ? 'bg-green-50 border-green-200' : ''}
+                    className={`w-full sm:w-auto ${copiedField === 'Senha' ? 'bg-green-50 border-green-200' : ''}`}
                   >
                     {copiedField === 'Senha' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 mr-2" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4 mr-2" />
                     )}
+                    <span className="sm:hidden">Copiar Senha</span>
+                    <span className="hidden sm:inline">Copiar</span>
                   </Button>
                 </div>
               </div>
@@ -152,9 +156,9 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
 
           {/* Links de Acesso */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Links de Acesso</CardTitle>
-              <CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Links de Acesso</CardTitle>
+              <CardDescription className="text-sm">
                 Duas formas de acessar os dados do paciente
               </CardDescription>
             </CardHeader>
@@ -162,26 +166,28 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
               {/* Link de Login */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4 flex-shrink-0" />
                   Página de Login (Recomendado)
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     value={loginUrl}
                     readOnly
-                    className="text-sm"
+                    className="text-sm flex-1 font-mono"
                   />
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => copyToClipboard(loginUrl, 'Link de Login')}
-                    className={copiedField === 'Link de Login' ? 'bg-green-50 border-green-200' : ''}
+                    className={`w-full sm:w-auto ${copiedField === 'Link de Login' ? 'bg-green-50 border-green-200' : ''}`}
                   >
                     {copiedField === 'Link de Login' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 mr-2" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4 mr-2" />
                     )}
+                    <span className="sm:hidden">Copiar Link de Login</span>
+                    <span className="hidden sm:inline">Copiar</span>
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -192,26 +198,28 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
               {/* Link Direto */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-2">
-                  <Link className="h-4 w-4" />
+                  <Link className="h-4 w-4 flex-shrink-0" />
                   Acesso Direto
                 </Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     value={directUrl}
                     readOnly
-                    className="text-sm"
+                    className="text-sm flex-1 font-mono"
                   />
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     onClick={() => copyToClipboard(directUrl, 'Link Direto')}
-                    className={copiedField === 'Link Direto' ? 'bg-green-50 border-green-200' : ''}
+                    className={`w-full sm:w-auto ${copiedField === 'Link Direto' ? 'bg-green-50 border-green-200' : ''}`}
                   >
                     {copiedField === 'Link Direto' ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 mr-2" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4 mr-2" />
                     )}
+                    <span className="sm:hidden">Copiar Link Direto</span>
+                    <span className="hidden sm:inline">Copiar</span>
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -222,16 +230,16 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
           </Card>
 
           {/* Informações Adicionais */}
-          <div className="flex items-center justify-between pt-4 border-t">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
                 Token: {credentials.token.slice(0, 8)}...
               </Badge>
-              <Badge variant="outline">
+              <Badge variant="outline" className="text-xs">
                 Criado: {new Date(credentials.created_at).toLocaleDateString('pt-BR')}
               </Badge>
             </div>
-            <Button onClick={onClose}>
+            <Button onClick={onClose} className="w-full sm:w-auto">
               Fechar
             </Button>
           </div>
