@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 20% 98%; /* #FDFCFA - Bege muito claro */
+    --foreground: 25 15% 15%; /* #2A2520 - Marrom escuro */
+    --card: 35 25% 96%; /* #FAF8F4 - Bege claro para cards */
+    --card-foreground: 25 15% 15%; /* #2A2520 - Marrom escuro */
+    --popover: 35 25% 96%; /* #FAF8F4 - Bege claro */
+    --popover-foreground: 25 15% 15%; /* #2A2520 - Marrom escuro */
+    --primary: 25 45% 55%; /* #B8956A - Bege dourado */
+    --primary-foreground: 35 25% 96%; /* #FAF8F4 - Bege claro */
+    --secondary: 30 25% 85%; /* #E6DDD4 - Bege médio */
+    --secondary-foreground: 25 15% 25%; /* #3D352E - Marrom médio */
+    --muted: 30 20% 90%; /* #EFEBE5 - Bege suave */
+    --muted-foreground: 25 10% 45%; /* #6B6158 - Marrom acinzentado */
+    --accent: 35 35% 75%; /* #D4C4A8 - Bege acentuado */
+    --accent-foreground: 25 15% 20%; /* #332B24 - Marrom escuro */
+    --destructive: 0 65% 55%; /* #C53030 - Vermelho suave */
+    --destructive-foreground: 35 25% 96%; /* #FAF8F4 - Bege claro */
+    --border: 30 20% 88%; /* #E8E2DB - Bege para bordas */
+    --input: 30 20% 92%; /* #F0EBE6 - Bege para inputs */
+    --ring: 25 45% 55%; /* #B8956A - Bege dourado para focus */
+    --radius: 0.5rem;
+    --chart-1: 25 45% 55%; /* Bege dourado */
+    --chart-2: 30 35% 65%; /* Bege médio */
+    --chart-3: 35 25% 75%; /* Bege claro */
+    --chart-4: 20 40% 50%; /* Marrom bege */
+    --chart-5: 40 30% 70%; /* Bege amarelado */
+  }
+
+  .dark {
+    --background: 25 15% 8%; /* #1A1612 - Marrom muito escuro */
+    --foreground: 35 20% 92%; /* #F2EFEB - Bege claro */
+    --card: 25 15% 10%; /* #1F1B16 - Marrom escuro para cards */
+    --card-foreground: 35 20% 92%; /* #F2EFEB - Bege claro */
+    --popover: 25 15% 10%; /* #1F1B16 - Marrom escuro */
+    --popover-foreground: 35 20% 92%; /* #F2EFEB - Bege claro */
+    --primary: 25 45% 65%; /* #C7A876 - Bege dourado claro */
+    --primary-foreground: 25 15% 8%; /* #1A1612 - Marrom muito escuro */
+    --secondary: 25 15% 15%; /* #2B241F - Marrom escuro secundário */
+    --secondary-foreground: 35 20% 85%; /* #E0DBD5 - Bege médio */
+    --muted: 25 10% 20%; /* #36302A - Marrom acinzentado */
+    --muted-foreground: 30 15% 65%; /* #A69C91 - Bege acinzentado */
+    --accent: 25 25% 25%; /* #453C33 - Marrom acentuado */
+    --accent-foreground: 35 20% 85%; /* #E0DBD5 - Bege médio */
+    --destructive: 0 55% 45%; /* #B91C1C - Vermelho escuro */
+    --destructive-foreground: 35 20% 92%; /* #F2EFEB - Bege claro */
+    --border: 25 10% 25%; /* #3D352E - Marrom para bordas */
+    --input: 25 10% 18%; /* #2F2822 - Marrom para inputs */
+    --ring: 25 45% 65%; /* #C7A876 - Bege dourado claro */
+    --chart-1: 25 45% 65%; /* Bege dourado claro */
+    --chart-2: 30 35% 55%; /* Bege médio escuro */
+    --chart-3: 35 25% 45%; /* Bege escuro */
+    --chart-4: 20 40% 40%; /* Marrom bege escuro */
+    --chart-5: 40 30% 50%; /* Bege amarelado escuro */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animations for the beige theme */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow-beige {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(184, 149, 106, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(184, 149, 106, 0.5);
+  }
+}
+
+/* Medical card styling with beige theme */
+.medical-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.medical-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Glassmorphism effect with beige tones */
+.glass-effect {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Custom scrollbar with beige theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F0EBE6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #B8956A, #D4C4A8);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #A6845A, #C7B599);
+}
+
+/* Loading animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive grid improvements */
+@media (min-width: 1536px) {
+  .patients-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+/* Enhanced focus states with beige theme */
+.focus-enhanced:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.2);
+  border-color: #B8956A;
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, select, textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced card hover effects with beige theme */
+.card-hover-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-hover-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 196, 168, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.card-hover-effect:hover::before {
+  left: 100%;
+}
+
+/* Beige gradient utilities */
+.gradient-beige-primary {
+  background: linear-gradient(135deg, #B8956A, #D4C4A8);
+}
+
+.gradient-beige-secondary {
+  background: linear-gradient(135deg, #E6DDD4, #F0EBE6);
+}
+
+.gradient-beige-warm {
+  background: linear-gradient(135deg, #D4C4A8, #E6DDD4);
+}
