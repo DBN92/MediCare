@@ -95,52 +95,52 @@ export default function Care() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Cuidados</h1>
-          <p className="text-muted-foreground">Registro e acompanhamento de cuidados dos pacientes</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Cuidados</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Registro e acompanhamento de cuidados dos pacientes</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowImportExport(true)}>
-            <Database className="h-4 w-4 mr-2" />
-            Import/Export
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={() => setShowImportExport(true)} className="w-full sm:w-auto h-9 sm:h-10 text-sm">
+            <Database className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">Import/Export</span>
           </Button>
-          <Button variant="outline">
-            <Calendar className="h-4 w-4 mr-2" />
-            Relatório Diário
+          <Button variant="outline" className="w-full sm:w-auto h-9 sm:h-10 text-sm">
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">Relatório Diário</span>
           </Button>
-          <Button variant="medical">
-            <Heart className="h-4 w-4 mr-2" />
-            Novo Registro
+          <Button variant="medical" className="w-full sm:w-auto h-9 sm:h-10 text-sm">
+            <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">Novo Registro</span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Patient Selection */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 order-2 lg:order-1">
           <Card className="medical-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary" />
-                Selecionar Paciente
+            <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                <span className="truncate">Selecionar Paciente</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Escolha o paciente para registrar cuidados
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 px-4 py-3 sm:px-6 sm:py-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Buscar paciente..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9 sm:h-10"
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto">
                 {filteredPatients.map((patient) => (
                   <div
                     key={patient.id}
@@ -152,8 +152,8 @@ export default function Care() {
                     onClick={() => setSelectedPatientId(patient.id)}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/20 flex-shrink-0">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-primary/20 flex-shrink-0">
                           {patient.photo ? (
                             <img
                               src={patient.photo}
@@ -162,18 +162,18 @@ export default function Care() {
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
-                              <Heart className="h-4 w-4 text-primary/60" />
+                              <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-primary/60" />
                             </div>
                           )}
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{patient.full_name}</p>
-                          <p className="text-sm text-muted-foreground">Leito {patient.bed}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-foreground truncate text-sm sm:text-base">{patient.full_name}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Leito {patient.bed}</p>
                         </div>
                       </div>
                       <Badge 
                         variant={patient.notes?.includes('crítico') ? 'destructive' : 'secondary'}
-                        className="text-xs"
+                        className="text-xs flex-shrink-0 ml-2"
                       >
                         {patient.notes?.includes('crítico') ? 'Crítico' : 'Estável'}
                       </Badge>
@@ -186,7 +186,7 @@ export default function Care() {
         </div>
 
         {/* Care Form */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 order-1 lg:order-2">
           {selectedPatientId ? (
             <CareForm 
               patientId={selectedPatientId}
@@ -231,21 +231,21 @@ export default function Care() {
 
       {/* Recent Care Records */}
       <Card className="medical-card">
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                Registros Recentes
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                <span className="truncate">Registros Recentes</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Últimos cuidados registrados no sistema
               </CardDescription>
             </div>
             <select 
               value={categoryFilter} 
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm"
+              className="px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm w-full sm:w-auto h-9 sm:h-10"
             >
               <option value="all">Todas as categorias</option>
               <option value="drink">Líquidos</option>
@@ -256,8 +256,8 @@ export default function Care() {
             </select>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="px-4 py-3 sm:px-6 sm:py-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredEvents.slice(0, 10).map((event) => {
               const patient = patients.find(p => p.id === event.patient_id)
               const Icon = getTypeIcon(event.type)
@@ -269,20 +269,20 @@ export default function Care() {
                                event.notes || 'Sem descrição'
               
               return (
-                <div key={event.id} className="flex items-center gap-4 p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className={`p-2 rounded-lg bg-muted ${getTypeColor(event.type)}`}>
-                    <Icon className="h-5 w-5" />
+                <div key={event.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className={`p-2 rounded-lg bg-muted ${getTypeColor(event.type)} flex-shrink-0 self-start sm:self-center`}>
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground mb-1">{getTypeName(event.type)}</p>
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground mb-1 text-sm sm:text-base">{getTypeName(event.type)}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
                       Paciente: {patient?.full_name || 'Paciente removido'} - Leito {patient?.bed || 'N/A'}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <div className="text-left sm:text-right">
+                      <p className="text-xs sm:text-sm font-medium text-foreground">
                         {new Date(event.occurred_at).toLocaleTimeString('pt-BR', { 
                           hour: '2-digit', 
                           minute: '2-digit' 
@@ -296,9 +296,9 @@ export default function Care() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteEvent(event.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 self-start sm:self-center h-8 w-8 p-0"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 </div>

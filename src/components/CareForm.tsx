@@ -254,30 +254,30 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
       
       <CardContent className="px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 sm:space-y-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
-            <TabsTrigger value="liquids" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-0.5 sm:gap-1 h-auto p-0.5 sm:p-1">
+            <TabsTrigger value="liquids" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <Droplets className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Líquidos</span>
+              <span className="truncate leading-tight">Líquidos</span>
             </TabsTrigger>
-            <TabsTrigger value="food" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+            <TabsTrigger value="food" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <Utensils className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Alimentos</span>
+              <span className="truncate leading-tight">Alimentos</span>
             </TabsTrigger>
-            <TabsTrigger value="medication" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+            <TabsTrigger value="medication" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <Pill className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Medicamentos</span>
+              <span className="truncate leading-tight">Medicamentos</span>
             </TabsTrigger>
-            <TabsTrigger value="drain" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+            <TabsTrigger value="drain" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <Activity className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Dreno</span>
+              <span className="truncate leading-tight">Dreno</span>
             </TabsTrigger>
-            <TabsTrigger value="bathroom" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+            <TabsTrigger value="bathroom" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <WashingMachine className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Eliminação</span>
+              <span className="truncate leading-tight">Eliminação</span>
             </TabsTrigger>
-            <TabsTrigger value="vitals" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+            <TabsTrigger value="vitals" className="flex flex-col items-center gap-0.5 sm:gap-1 px-1 py-1.5 sm:px-2 sm:py-2 text-[10px] sm:text-xs md:text-sm min-h-[44px] sm:min-h-[40px]">
               <Heart className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-              <span className="truncate">Sinais Vitais</span>
+              <span className="truncate leading-tight">Sinais Vitais</span>
             </TabsTrigger>
           </TabsList>
 
@@ -303,8 +303,8 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="liquid-amount">Quantidade (ml) *</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="liquid-amount" className="text-xs sm:text-sm font-medium">Quantidade (ml) *</Label>
                   <Input 
                     id="liquid-amount" 
                     type="number" 
@@ -312,45 +312,48 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     value={liquidForm.amount}
                     onChange={(e) => setLiquidForm(prev => ({ ...prev, amount: e.target.value }))}
                     min="1"
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="liquid-time">Horário</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="liquid-time" className="text-xs sm:text-sm font-medium">Horário</Label>
                 <Input 
                   id="liquid-time" 
                   type="datetime-local" 
                   value={liquidForm.time}
                   onChange={(e) => setLiquidForm(prev => ({ ...prev, time: e.target.value }))}
+                  className="h-9 sm:h-10 text-xs sm:text-sm"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="liquid-notes">Observações</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="liquid-notes" className="text-xs sm:text-sm font-medium">Observações</Label>
                 <Textarea 
                   id="liquid-notes" 
                   placeholder="Observações adicionais..." 
                   value={liquidForm.notes}
                   onChange={(e) => setLiquidForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" className="w-full h-9 sm:h-10 text-xs sm:text-sm" disabled={loading}>
+                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {loading ? "Salvando..." : "Registrar Líquidos"}
               </Button>
             </form>
           </TabsContent>
 
           {/* Alimentos */}
-          <TabsContent value="food" className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="food-type">Tipo de Refeição *</Label>
+          <TabsContent value="food" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="food-type" className="text-xs sm:text-sm font-medium">Tipo de Refeição *</Label>
                   <Select value={foodForm.type} onValueChange={(value) => setFoodForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -362,8 +365,8 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="food-amount">Quantidade Consumida (%) *</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="food-amount" className="text-xs sm:text-sm font-medium">Quantidade Consumida (%) *</Label>
                   <Input 
                     id="food-amount" 
                     type="number" 
@@ -372,67 +375,72 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     placeholder="0" 
                     value={foodForm.amount}
                     onChange={(e) => setFoodForm(prev => ({ ...prev, amount: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="food-time">Horário</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="food-time" className="text-xs sm:text-sm font-medium">Horário</Label>
                 <Input 
                   id="food-time" 
                   type="datetime-local" 
                   value={foodForm.time}
                   onChange={(e) => setFoodForm(prev => ({ ...prev, time: e.target.value }))}
+                  className="h-9 sm:h-10 text-xs sm:text-sm"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="food-description">Descrição dos Alimentos</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="food-description" className="text-xs sm:text-sm font-medium">Descrição dos Alimentos</Label>
                 <Textarea 
                   id="food-description" 
                   placeholder="Descreva os alimentos consumidos..." 
                   value={foodForm.description}
                   onChange={(e) => setFoodForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" className="w-full h-9 sm:h-10 text-xs sm:text-sm" disabled={loading}>
+                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {loading ? "Salvando..." : "Registrar Alimentação"}
               </Button>
             </form>
           </TabsContent>
 
           {/* Medicamentos */}
-          <TabsContent value="medication" className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="med-name">Nome do Medicamento *</Label>
+          <TabsContent value="medication" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="med-name" className="text-xs sm:text-sm font-medium">Nome do Medicamento *</Label>
                   <Input 
                     id="med-name" 
                     placeholder="Nome do medicamento" 
                     value={medicationForm.name}
                     onChange={(e) => setMedicationForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="med-dosage">Dosagem *</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="med-dosage" className="text-xs sm:text-sm font-medium">Dosagem *</Label>
                   <Input 
                     id="med-dosage" 
                     placeholder="Ex: 500mg" 
                     value={medicationForm.dosage}
                     onChange={(e) => setMedicationForm(prev => ({ ...prev, dosage: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="med-route">Via de Administração</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="med-route" className="text-xs sm:text-sm font-medium">Via de Administração</Label>
                   <Select value={medicationForm.route} onValueChange={(value) => setMedicationForm(prev => ({ ...prev, route: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione a via" />
                     </SelectTrigger>
                     <SelectContent>
@@ -445,19 +453,20 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="med-time">Horário de Administração</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="med-time" className="text-xs sm:text-sm font-medium">Horário de Administração</Label>
                   <Input 
                     id="med-time" 
                     type="datetime-local" 
                     value={medicationForm.time}
                     onChange={(e) => setMedicationForm(prev => ({ ...prev, time: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="med-notes">Observações</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="med-notes" className="text-xs sm:text-sm font-medium">Observações</Label>
                 <Textarea 
                   id="med-notes" 
                   placeholder="Reações, efeitos observados..." 
@@ -466,21 +475,21 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" className="w-full h-9 sm:h-10 text-xs sm:text-sm" disabled={loading}>
+                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {loading ? "Salvando..." : "Registrar Medicamento"}
               </Button>
             </form>
           </TabsContent>
 
           {/* Dreno */}
-          <TabsContent value="drain" className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="drain-type">Tipo de Dreno *</Label>
+          <TabsContent value="drain" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-type" className="text-xs sm:text-sm font-medium">Tipo de Dreno *</Label>
                   <Select value={drainForm.type} onValueChange={(value) => setDrainForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -492,8 +501,8 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="drain-left-amount">Volume Esquerdo (ml)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-left-amount" className="text-xs sm:text-sm font-medium">Volume Esquerdo (ml)</Label>
                   <Input 
                     id="drain-left-amount" 
                     type="number" 
@@ -501,13 +510,14 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     value={drainForm.leftAmount}
                     onChange={(e) => setDrainForm(prev => ({ ...prev, leftAmount: e.target.value }))}
                     min="0"
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="drain-right-amount">Volume Direito (ml)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-right-amount" className="text-xs sm:text-sm font-medium">Volume Direito (ml)</Label>
                   <Input 
                     id="drain-right-amount" 
                     type="number" 
@@ -515,13 +525,14 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     value={drainForm.rightAmount}
                     onChange={(e) => setDrainForm(prev => ({ ...prev, rightAmount: e.target.value }))}
                     min="0"
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="drain-left-aspect">Aspecto Esquerdo</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-left-aspect" className="text-xs sm:text-sm font-medium">Aspecto Esquerdo</Label>
                   <Select value={drainForm.leftAspect} onValueChange={(value) => setDrainForm(prev => ({ ...prev, leftAspect: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o aspecto" />
                     </SelectTrigger>
                     <SelectContent>
@@ -534,11 +545,11 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="drain-right-aspect">Aspecto Direito</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-right-aspect" className="text-xs sm:text-sm font-medium">Aspecto Direito</Label>
                   <Select value={drainForm.rightAspect} onValueChange={(value) => setDrainForm(prev => ({ ...prev, rightAspect: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o aspecto" />
                     </SelectTrigger>
                     <SelectContent>
@@ -549,9 +560,11 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                
-                <div>
-                  <Label htmlFor="drain-time">Horário</Label>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="drain-time" className="text-xs sm:text-sm font-medium">Horário</Label>
                   <Input 
                     id="drain-time" 
                     type="datetime-local" 
@@ -561,13 +574,14 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="drain-notes">Observações</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="drain-notes" className="text-xs sm:text-sm font-medium">Observações</Label>
                 <Textarea 
                   id="drain-notes" 
                   placeholder="Observações sobre o débito..." 
                   value={drainForm.notes}
                   onChange={(e) => setDrainForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
                 />
               </div>
               
@@ -579,13 +593,13 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
           </TabsContent>
 
           {/* Banheiro */}
-          <TabsContent value="bathroom" className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="bathroom-type">Tipo *</Label>
+          <TabsContent value="bathroom" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="bathroom-type" className="text-xs sm:text-sm font-medium">Tipo *</Label>
                   <Select value={bathroomForm.type} onValueChange={(value) => setBathroomForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -596,75 +610,80 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="bathroom-time">Horário</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="bathroom-time" className="text-xs sm:text-sm font-medium">Horário</Label>
                   <Input 
                     id="bathroom-time" 
                     type="datetime-local" 
                     value={bathroomForm.time}
                     onChange={(e) => setBathroomForm(prev => ({ ...prev, time: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="bathroom-notes">Observações</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="bathroom-notes" className="text-xs sm:text-sm font-medium">Observações</Label>
                 <Textarea 
                   id="bathroom-notes" 
                   placeholder="Características, volume, cor..." 
                   value={bathroomForm.notes}
                   onChange={(e) => setBathroomForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" className="w-full h-9 sm:h-10 text-xs sm:text-sm" disabled={loading}>
+                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {loading ? "Salvando..." : "Registrar Eliminação"}
               </Button>
             </form>
           </TabsContent>
 
           {/* Sinais Vitais */}
-          <TabsContent value="vitals">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="systolic-bp">Pressão Arterial Sistólica (mmHg)</Label>
+          <TabsContent value="vitals" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="systolic-bp" className="text-xs sm:text-sm font-medium">Pressão Arterial Sistólica (mmHg)</Label>
                   <Input 
                     id="systolic-bp" 
                     type="number" 
                     placeholder="120" 
                     value={vitalSignsForm.systolicBP}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, systolicBP: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="diastolic-bp">Pressão Arterial Diastólica (mmHg)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="diastolic-bp" className="text-xs sm:text-sm font-medium">Pressão Arterial Diastólica (mmHg)</Label>
                   <Input 
                     id="diastolic-bp" 
                     type="number" 
                     placeholder="80" 
                     value={vitalSignsForm.diastolicBP}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, diastolicBP: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="heart-rate">Frequência Cardíaca (bpm)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="heart-rate" className="text-xs sm:text-sm font-medium">Frequência Cardíaca (bpm)</Label>
                   <Input 
                     id="heart-rate" 
                     type="number" 
                     placeholder="72" 
                     value={vitalSignsForm.heartRate}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, heartRate: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="temperature">Temperatura (°C)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="temperature" className="text-xs sm:text-sm font-medium">Temperatura (°C)</Label>
                   <Input 
                     id="temperature" 
                     type="number" 
@@ -672,59 +691,64 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                     placeholder="36.5" 
                     value={vitalSignsForm.temperature}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, temperature: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="oxygen-saturation">Saturação de O2 (%)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="oxygen-saturation" className="text-xs sm:text-sm font-medium">Saturação de O2 (%)</Label>
                   <Input 
                     id="oxygen-saturation" 
                     type="number" 
                     placeholder="98" 
                     value={vitalSignsForm.oxygenSaturation}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, oxygenSaturation: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
                 
-                <div>
-                  <Label htmlFor="respiratory-rate">Frequência Respiratória (rpm)</Label>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="respiratory-rate" className="text-xs sm:text-sm font-medium">Frequência Respiratória (rpm)</Label>
                   <Input 
                     id="respiratory-rate" 
                     type="number" 
                     placeholder="16" 
                     value={vitalSignsForm.respiratoryRate}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, respiratoryRate: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="vitals-time">Data e Hora</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="vitals-time" className="text-xs sm:text-sm font-medium">Data e Hora</Label>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                   <Input 
                     id="vitals-time" 
                     type="datetime-local" 
                     value={vitalSignsForm.time}
                     onChange={(e) => setVitalSignsForm(prev => ({ ...prev, time: e.target.value }))}
+                    className="h-9 sm:h-10 text-xs sm:text-sm"
                   />
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="vitals-notes">Observações</Label>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="vitals-notes" className="text-xs sm:text-sm font-medium">Observações</Label>
                 <Textarea 
                   id="vitals-notes" 
                   placeholder="Observações sobre os sinais vitais..." 
                   value={vitalSignsForm.notes}
                   onChange={(e) => setVitalSignsForm(prev => ({ ...prev, notes: e.target.value }))}
+                  className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
                 />
               </div>
               
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" className="w-full h-9 sm:h-10 text-xs sm:text-sm" disabled={loading}>
+                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {loading ? "Salvando..." : "Registrar Sinais Vitais"}
               </Button>
             </form>
