@@ -290,7 +290,7 @@ const Patients = () => {
           <Card 
             key={patient.id} 
             className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-[1.02] group"
-            onClick={() => navigate(`/patient/${patient.id}`)}
+            onClick={() => navigate(`/care/${patient.id}`)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
