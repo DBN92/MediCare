@@ -48,13 +48,13 @@ export function Layout({ children }: LayoutProps) {
       <AppSidebar />
       <main className="flex-1 flex flex-col min-h-screen">
         <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-          <div className="container flex h-14 items-center">
-            <SidebarTrigger className="mr-4" />
+          <div className="container flex h-14 items-center px-2 sm:px-4">
+            <SidebarTrigger className="mr-2 sm:mr-4" />
             
-            <div className="flex flex-1 items-center justify-between space-x-2">
+            <div className="flex flex-1 items-center justify-between space-x-1 sm:space-x-2">
               <div className="flex-1" />
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 {/* Notification Bell */}
                 <NotificationDropdown
                   notifications={notifications}
@@ -83,7 +83,7 @@ export function Layout({ children }: LayoutProps) {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.email}</p>
+                        <p className="text-sm font-medium leading-none truncate">{user?.email}</p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {getRoleLabel(user?.role || '')}
                         </p>
@@ -106,7 +106,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </header>
         
-        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="flex-1 space-y-4 p-2 sm:p-4 md:p-8 pt-4 sm:pt-6">
           {children}
         </div>
       </main>

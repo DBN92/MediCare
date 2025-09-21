@@ -16,12 +16,13 @@ interface PatientFormProps {
 
 export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
   const [formData, setFormData] = useState({
-    full_name: "",
-    birth_date: "",
-    admission_date: "",
-    bed: "",
-    notes: "",
-    photo: "",
+    full_name: '',
+    birth_date: '',
+    admission_date: '',
+    bed: '',
+    notes: '',
+    photo: '',
+    status: 'estavel' as const,
     is_active: true
   })
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -125,16 +126,16 @@ export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md sm:max-w-lg medical-card max-h-[90vh] overflow-y-auto">
-        <CardHeader>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <Card className="w-full max-w-sm sm:max-w-md lg:max-w-lg medical-card max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
-              <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5 text-primary flex-shrink-0" />
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
                 <span className="truncate">Novo Paciente</span>
               </CardTitle>
-              <CardDescription className="truncate">
+              <CardDescription className="truncate text-xs sm:text-sm">
                 Cadastre um novo paciente no sistema
               </CardDescription>
             </div>
@@ -142,43 +143,43 @@ export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-8 w-8 p-0 flex-shrink-0"
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0 flex-shrink-0"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </CardHeader>
         
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="px-3 sm:px-6">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Campo de Foto */}
             <div className="space-y-2">
-              <Label>Foto do Paciente</Label>
-              <div className="flex flex-col items-center space-y-3">
+              <Label className="text-xs sm:text-sm">Foto do Paciente</Label>
+              <div className="flex flex-col items-center space-y-2 sm:space-y-3">
                 {photoPreview ? (
                   <div className="relative">
                     <img
                       src={photoPreview}
                       alt="Preview da foto"
-                      className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-200"
                     />
                     <Button
                       type="button"
                       variant="destructive"
                       size="sm"
                       onClick={removePhoto}
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                      className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full p-0"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-2 w-2 sm:h-3 sm:w-3" />
                     </Button>
                   </div>
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    <Camera className="h-8 w-8 text-gray-400" />
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                   </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-2">
+                <div className="w-full">
                   <input
                     type="file"
                     id="photo"
@@ -191,17 +192,18 @@ export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
                     variant="outline"
                     size="sm"
                     onClick={() => document.getElementById('photo')?.click()}
-                    className="flex items-center gap-2 w-full sm:w-auto"
+                    className="flex items-center gap-2 w-full text-xs sm:text-sm"
                   >
-                    <Upload className="h-4 w-4 flex-shrink-0" />
+                    <Upload className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span className="truncate">{photoPreview ? 'Alterar Foto' : 'Adicionar Foto'}</span>
                   </Button>
                 </div>
               </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Nome Completo *</Label>
+
+            {/* Nome Completo */}
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="full_name" className="text-xs sm:text-sm">Nome Completo *</Label>
               <Input
                 id="full_name"
                 name="full_name"
@@ -209,47 +211,55 @@ export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
                 onChange={handleChange}
                 placeholder="Digite o nome completo"
                 required
+                className="text-sm"
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="birth_date">Data de Nascimento *</Label>
-              <Input
-                id="birth_date"
-                name="birth_date"
-                type="date"
-                value={formData.birth_date}
-                onChange={handleChange}
-                required
-              />
+
+            {/* Data de Nascimento e Leito */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="birth_date" className="text-xs sm:text-sm">Data de Nascimento *</Label>
+                <Input
+                  id="birth_date"
+                  name="birth_date"
+                  type="date"
+                  value={formData.birth_date}
+                  onChange={handleChange}
+                  required
+                  className="text-sm"
+                />
+              </div>
+              
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="bed" className="text-xs sm:text-sm">Leito *</Label>
+                <Input
+                  id="bed"
+                  name="bed"
+                  value={formData.bed}
+                  onChange={handleChange}
+                  placeholder="Ex: 101-A"
+                  required
+                  className="text-sm"
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="admission_date">Data de Internação</Label>
+
+            {/* Data de Internação */}
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="admission_date" className="text-xs sm:text-sm">Data de Internação</Label>
               <Input
                 id="admission_date"
                 name="admission_date"
                 type="date"
                 value={formData.admission_date}
                 onChange={handleChange}
-                placeholder="Data opcional de internação"
+                className="text-sm"
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="bed">Leito *</Label>
-              <Input
-                id="bed"
-                name="bed"
-                value={formData.bed}
-                onChange={handleChange}
-                placeholder="Ex: 101-A"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="notes">Observações</Label>
+
+            {/* Observações */}
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="notes" className="text-xs sm:text-sm">Observações</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -257,25 +267,27 @@ export const PatientForm = ({ onClose, onSuccess }: PatientFormProps) => {
                 onChange={handleChange}
                 placeholder="Observações sobre o paciente..."
                 rows={3}
+                className="text-sm resize-none"
               />
             </div>
-            
-            <div className="flex flex-col sm:flex-row gap-2 pt-4">
+
+            {/* Botões */}
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="flex-1 w-full"
+                disabled={loading}
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                variant="medical"
                 disabled={loading}
-                className="flex-1 w-full"
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
-                {loading ? "Salvando..." : "Salvar"}
+                {loading ? "Salvando..." : "Salvar Paciente"}
               </Button>
             </div>
           </form>

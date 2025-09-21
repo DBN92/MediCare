@@ -135,25 +135,25 @@ export function ProfilePhotoModal({ open, onOpenChange }: ProfilePhotoModalProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Alterar Foto de Perfil</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-[95vw] max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+        <DialogHeader className="px-1 sm:px-2">
+          <DialogTitle className="text-base sm:text-lg md:text-xl text-center">Alterar Foto de Perfil</DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm md:text-base text-center">
             Escolha uma nova foto para seu perfil ou remova a atual.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center space-y-4 sm:space-y-6 px-2 sm:px-4">
           {/* Avatar atual ou preview */}
           <div className="relative">
-            <Avatar className="h-24 w-24">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28">
               <AvatarImage 
                 src={previewUrl || user?.profilePhoto} 
-                alt={user?.name}
+                alt="Foto de perfil"
                 className="object-cover"
               />
-              <AvatarFallback className="text-lg">
-                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || <Camera className="h-8 w-8" />}
+              <AvatarFallback className="text-lg sm:text-xl md:text-2xl bg-gradient-to-br from-primary/10 to-primary/20">
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             
@@ -161,68 +161,106 @@ export function ProfilePhotoModal({ open, onOpenChange }: ProfilePhotoModalProps
               <Button
                 variant="destructive"
                 size="sm"
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                className="absolute -top-2 -right-2 h-6 w-6 sm:h-7 sm:w-7 rounded-full p-0"
                 onClick={clearSelection}
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             )}
           </div>
 
-          {/* Informações do usuário */}
-          <div className="text-center">
-            <p className="font-medium">{user?.name}</p>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+          {/* Botões de ação */}
+          <div className="flex flex-col w-full space-y-2 sm:space-y-3">
+            {/* Input de arquivo (oculto) */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="photo-upload"
+            />
+            
+            {/* Botão para selecionar arquivo */}
+            <label htmlFor="photo-upload">
+              <Button
+                variant="outline"
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm cursor-pointer"
+                asChild
+              >
+                <div className="flex items-center gap-2">
+                  <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span>Escolher Nova Foto</span>
+                </div>
+              </Button>
+            </label>
+
+            {/* Botão para usar câmera (apenas em dispositivos móveis) */}
+            <label htmlFor="camera-upload" className="sm:hidden">
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="camera-upload"
+              />
+              <Button
+                variant="outline"
+                className="w-full h-9 text-xs cursor-pointer"
+                asChild
+              >
+                <div className="flex items-center gap-2">
+                  <Camera className="h-3 w-3" />
+                  <span>Usar Câmera</span>
+                </div>
+              </Button>
+            </label>
+
+            {/* Botão para salvar (apenas se há arquivo selecionado) */}
+            {selectedFile && (
+              <Button
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Salvando...</span>
+                  </div>
+                ) : (
+                  <span>Salvar Nova Foto</span>
+                )}
+              </Button>
+            )}
+
+            {/* Botão para remover foto (apenas se há foto atual) */}
+            {user?.profilePhoto && !selectedFile && (
+              <Button
+                variant="destructive"
+                onClick={handleRemovePhoto}
+                disabled={isUploading}
+                className="w-full h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                {isUploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Removendo...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Remover Foto</span>
+                  </div>
+                )}
+              </Button>
+            )}
           </div>
 
-          {/* Botões de ação */}
-          <div className="flex flex-col w-full space-y-3">
-            {!selectedFile ? (
-              <>
-                <label htmlFor="photo-upload">
-                  <Button variant="outline" className="w-full" asChild>
-                    <span className="cursor-pointer">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Escolher Nova Foto
-                    </span>
-                  </Button>
-                </label>
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                
-                {user?.profilePhoto && (
-                  <Button
-                    variant="destructive"
-                    onClick={handleRemovePhoto}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? "Removendo..." : "Remover Foto Atual"}
-                  </Button>
-                )}
-              </>
-            ) : (
-              <div className="flex space-x-3">
-                <Button
-                  onClick={handleUpload}
-                  disabled={isUploading}
-                  className="flex-1"
-                >
-                  {isUploading ? "Salvando..." : "Salvar Foto"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={clearSelection}
-                  disabled={isUploading}
-                >
-                  Cancelar
-                </Button>
-              </div>
-            )}
+          {/* Informações sobre limites */}
+          <div className="text-xs sm:text-sm text-muted-foreground text-center space-y-1">
+            <p>Formatos aceitos: JPG, PNG, GIF</p>
+            <p>Tamanho máximo: 5MB</p>
           </div>
         </div>
       </DialogContent>

@@ -241,54 +241,54 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
   }
 
   return (
-    <Card className="medical-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-primary" />
-          Registro de Cuidados
+    <Card className="medical-card w-full max-w-none">
+      <CardHeader className="px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+          <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+          <span className="truncate">Registro de Cuidados</span>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm md:text-base">
           Registre os cuidados realizados para o paciente
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="liquids" className="flex items-center gap-2">
-              <Droplets className="h-4 w-4" />
-              Líquidos
+      <CardContent className="px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 sm:space-y-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
+            <TabsTrigger value="liquids" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <Droplets className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Líquidos</span>
             </TabsTrigger>
-            <TabsTrigger value="food" className="flex items-center gap-2">
-              <Utensils className="h-4 w-4" />
-              Alimentos
+            <TabsTrigger value="food" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <Utensils className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Alimentos</span>
             </TabsTrigger>
-            <TabsTrigger value="medication" className="flex items-center gap-2">
-              <Pill className="h-4 w-4" />
-              Medicamentos
+            <TabsTrigger value="medication" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <Pill className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Medicamentos</span>
             </TabsTrigger>
-            <TabsTrigger value="drain" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Dreno
+            <TabsTrigger value="drain" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Dreno</span>
             </TabsTrigger>
-            <TabsTrigger value="bathroom" className="flex items-center gap-2">
-              <WashingMachine className="h-4 w-4" />
-              Eliminação
+            <TabsTrigger value="bathroom" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <WashingMachine className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Eliminação</span>
             </TabsTrigger>
-            <TabsTrigger value="vitals" className="flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              Sinais Vitais
+            <TabsTrigger value="vitals" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 sm:px-3 sm:py-2 text-xs sm:text-sm">
+              <Heart className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Sinais Vitais</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Líquidos */}
-          <TabsContent value="liquids" className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="liquid-type">Tipo de Líquido *</Label>
+          <TabsContent value="liquids" className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="liquid-type" className="text-xs sm:text-sm font-medium">Tipo de Líquido *</Label>
                   <Select value={liquidForm.type} onValueChange={(value) => setLiquidForm(prev => ({ ...prev, type: value }))}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -298,6 +298,7 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
                       <SelectItem value="Leite">Leite</SelectItem>
                       <SelectItem value="Sopa">Sopa</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
+
                     </SelectContent>
                   </Select>
                 </div>

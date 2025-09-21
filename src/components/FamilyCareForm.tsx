@@ -206,131 +206,115 @@ const FamilyCareForm = ({ patient, permissions, onClose, onSave }: FamilyCareFor
   }
 
   return (
-    <Card className="medical-card">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 flex-shrink-0">
-              {patient.photo ? (
-                <img
-                  src={patient.photo}
-                  alt={`Foto de ${patient.full_name}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
-                  <Heart className="h-6 w-6 text-primary/60" />
-                </div>
-              )}
-            </div>
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-red-500" />
-                Registrar Cuidado
-              </CardTitle>
-              <CardDescription>
-                Adicionar novo registro de cuidado para {patient.full_name}
-              </CardDescription>
-            </div>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {/* Mensagem para usuários somente leitura */}
-        {permissions && !permissions.canEdit && (
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-            <div className="flex items-center gap-2 text-yellow-800">
-              <Activity className="h-4 w-4" />
-              <span className="font-medium">Acesso Somente Leitura</span>
-            </div>
-            <p className="text-sm text-yellow-700 mt-1">
-              Você tem permissão apenas para visualizar os dados. Para registrar cuidados, solicite acesso de edição.
-            </p>
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Tipo de Cuidado */}
-          <div>
-            <Label htmlFor="type">Tipo de Cuidado *</Label>
-            <Select 
-              value={formData.type} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as any }))}
-              disabled={!permissions || !permissions.canEdit}
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="px-3 py-4 sm:px-4 sm:py-5 md:px-6 md:py-6">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base sm:text-lg md:text-xl flex items-center gap-2">
+              <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+              <span className="truncate">Registro de Cuidados</span>
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0 hover:bg-gray-100"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo de cuidado" />
-              </SelectTrigger>
-              <SelectContent>
-                {careTypes.map((type) => {
-                  const Icon = type.icon
-                  return (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 ${type.color}`} />
-                        {type.label}
-                      </div>
-                    </SelectItem>
-                  )
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Data e Hora */}
-          <div>
-            <Label htmlFor="occurred_at">Data e Hora *</Label>
-            <Input
-              id="occurred_at"
-              type="datetime-local"
-              value={formData.occurred_at}
-              onChange={(e) => setFormData(prev => ({ ...prev, occurred_at: e.target.value }))}
-              disabled={!permissions || !permissions.canEdit}
-              required
-            />
-          </div>
-
-          {/* Campos específicos por tipo */}
-          {renderTypeSpecificFields()}
-
-          {/* Observações */}
-          <div>
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              placeholder="Observações adicionais sobre o cuidado..."
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              disabled={!permissions || !permissions.canEdit}
-              rows={3}
-            />
-          </div>
-
-          {/* Botões */}
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={loading || !permissions || !permissions.canEdit} className="flex-1">
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Salvando...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar Registro
-                </>
-              )}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
+              <X className="h-4 w-4" />
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+          <CardDescription className="text-xs sm:text-sm md:text-base">
+            Registrar cuidado para <span className="font-medium">{patient.full_name}</span>
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="type" className="text-xs sm:text-sm font-medium">Tipo de Cuidado *</Label>
+                <Select 
+                  value={formData.type} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as any }))}
+                  disabled={!permissions || !permissions.canEdit}
+                >
+                  <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {careTypes.map((type) => {
+                      const Icon = type.icon
+                      return (
+                        <SelectItem key={type.value} value={type.value} className="flex items-center gap-2">
+                          <div className="flex items-center gap-2">
+                            <Icon className={`h-3 w-3 sm:h-4 sm:w-4 ${type.color}`} />
+                            <span className="text-xs sm:text-sm">{type.label}</span>
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="occurred_at" className="text-xs sm:text-sm font-medium">Data e Hora *</Label>
+                <Input
+                  id="occurred_at"
+                  type="datetime-local"
+                  value={formData.occurred_at}
+                  onChange={(e) => setFormData(prev => ({ ...prev, occurred_at: e.target.value }))}
+                  disabled={!permissions || !permissions.canEdit}
+                  className="h-9 sm:h-10 text-xs sm:text-sm"
+                />
+              </div>
+            </div>
+
+            {renderTypeSpecificFields()}
+
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="notes" className="text-xs sm:text-sm font-medium">Observações</Label>
+              <Textarea
+                id="notes"
+                placeholder="Observações adicionais..."
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                disabled={!permissions || !permissions.canEdit}
+                className="min-h-[60px] sm:min-h-[80px] text-xs sm:text-sm resize-none"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="w-full sm:w-auto order-2 sm:order-1 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading || !permissions || !permissions.canEdit}
+                className="w-full sm:flex-1 order-1 sm:order-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Salvando...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>Salvar</span>
+                  </div>
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
