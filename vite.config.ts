@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   },
   preview: {
     port: 3000,
-    allowedHosts: ['*']
+    allowedHosts: ['*', 'medicare.danieltechsolutions.com']
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
