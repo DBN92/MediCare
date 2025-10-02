@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Modo Família</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Modo Família MediCare</h1>
+    
+    <div class="test-section info">
+        <h2>📊 Status do Sistema</h2>
+        <p><strong>Servidor:</strong> <span id="server-status">Verificando...</span></p>
+        <p><strong>LocalStorage:</strong> <span id="storage-status">Verificando...</span></p>
+        <p><strong>Tokens Familiares:</strong> <span id="tokens-count">Verificando...</span></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Testes Automáticos</h2>
+        <button onclick="runAllTests()">▶️ Executar Todos os Testes</button>
+        <button onclick="clearStorage()">🗑️ Limpar LocalStorage</button>
+        <button onclick="createTestTokens()">🔑 Criar Tokens de Teste</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔑 Tokens Armazenados</h2>
+        <div id="tokens-display"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Teste de Navegação</h2>
+        <button onclick="testFamilyLogin()">🔐 Testar Login</button>
+        <button onclick="testDashboard()">📊 Testar Dashboard</button>
+        <button onclick="testCareForm()">📝 Testar Formulário</button>
+        <div id="navigation-results"></div>
+    </div>
+
+    <script>
+        const FAMILY_TOKENS_KEY = 'bedside_family_tokens';
+        
+        // Verificar status inicial
+        function checkSystemStatus() {
+            // Status do servidor
+            fetch('http://localhost:8080/')
+                .then(response => {
+                    document.getElementById('server-status').textContent = 
+                        response.ok ? '✅ Online' : '❌ Offline';
+                })
+                .catch(() => {
+                    document.getElementById('server-status').textContent = '❌ Não conectado';
+                });
+
+            // Status do localStorage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                document.getElementById('storage-status').textContent = '✅ Funcionando';
+            } catch (e) {
+                document.getElementById('storage-status').textContent = '❌ Bloqueado';
+            }
+
+            // Contar tokens
+            updateTokensDisplay();
+        }
+
+        function updateTokensDisplay() {
+            try {
+                const tokens = JSON.parse(localStorage.getItem(FAMILY_TOKENS_KEY) || '[]');
+                document.getElementById('tokens-count').textContent = `${tokens.length} tokens`;
+                
+                const display = document.getElementById('tokens-display');
+                if (tokens.length === 0) {
+                    display.innerHTML = '<p>Nenhum token encontrado</p>';
+                } else {
+                    display.innerHTML = '<pre>' + JSON.stringify(tokens, null, 2) + '</pre>';
+                }
+            } catch (e) {
+                document.getElementById('tokens-count').textContent = 'Erro ao ler';
+                document.getElementById('tokens-display').innerHTML = '<p class="error">Erro: ' + e.message + '</p>';
+            }
+        }
+
+        function createTestTokens() {
+            const testTokens = [
+                {
+                    id: 'test-id-1',
+                    patient_id: 'test-patient-1',
+                    token: 'test-token-editor',
+                    username: 'familia_editor',
+                    password: 'senha123',
+                    role: 'editor',
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: 'test-id-2',
+                    patient_id: 'test-patient-1',
+                    token: 'test-token-viewer',
+                    username: 'familia_viewer',
+                    password: 'senha123',
+                    role: 'viewer',
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                }
+            ];
+
+            localStorage.setItem(FAMILY_TOKENS_KEY, JSON.stringify(testTokens));
+            updateTokensDisplay();
+            
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="success">✅ Tokens de teste criados com sucesso!</div>';
+        }
+
+        function clearStorage() {
+            localStorage.removeItem(FAMILY_TOKENS_KEY);
+            updateTokensDisplay();
+            
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="info">🗑️ LocalStorage limpo</div>';
+        }
+
+        function testFamilyLogin() {
+            const url = 'http://localhost:8080/family/login';
+            window.open(url, '_blank');
+            
+            const results = document.getElementById('navigation-results');
+            results.innerHTML = '<div class="info">🔐 Abrindo página de login em nova aba...</div>';
+        }
+
+        function testDashboard() {
+            const url = 'http://localhost:8080/family/test-patient-1/test-token-editor/dashboard';
+            window.open(url, '_blank');
+            
+            const results = document.getElementById('navigation-results');
+            results.innerHTML = '<div class="info">📊 Abrindo dashboard em nova aba...</div>';
+        }
+
+        function testCareForm() {
+            const url = 'http://localhost:8080/family/test-patient-1/test-token-editor/care';
+            window.open(url, '_blank');
+            
+            const results = document.getElementById('navigation-results');
+            results.innerHTML = '<div class="info">📝 Abrindo formulário de cuidados em nova aba...</div>';
+        }
+
+        function runAllTests() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="info">🔄 Executando testes...</div>';
+            
+            let testResults = [];
+            
+            // Teste 1: LocalStorage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                testResults.push('✅ LocalStorage: OK');
+            } catch (e) {
+                testResults.push('❌ LocalStorage: Falhou - ' + e.message);
+            }
+
+            // Teste 2: Tokens
+            try {
+                const tokens = JSON.parse(localStorage.getItem(FAMILY_TOKENS_KEY) || '[]');
+                testResults.push(`✅ Tokens: ${tokens.length} encontrados`);
+            } catch (e) {
+                testResults.push('❌ Tokens: Erro ao ler - ' + e.message);
+            }
+
+            // Teste 3: Conectividade
+            fetch('http://localhost:8080/')
+                .then(response => {
+                    if (response.ok) {
+                        testResults.push('✅ Servidor: Conectado');
+                    } else {
+                        testResults.push('❌ Servidor: Erro HTTP ' + response.status);
+                    }
+                    updateTestResults(testResults);
+                })
+                .catch(error => {
+                    testResults.push('❌ Servidor: Não conectado - ' + error.message);
+                    updateTestResults(testResults);
+                });
+        }
+
+        function updateTestResults(results) {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="info"><h3>Resultados dos Testes:</h3><ul>' + 
+                results.map(r => '<li>' + r + '</li>').join('') + '</ul></div>';
+        }
+
+        // Executar verificações ao carregar a página
+        window.onload = function() {
+            checkSystemStatus();
+        };
+    </script>
+</body>
+</html>

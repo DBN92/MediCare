@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Salvamento - MediCare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Salvamento de Registros - MediCare</h1>
+        
+        <div class="test-section info">
+            <h3>📋 Status da Conexão</h3>
+            <p id="connection-status">Verificando conexão...</p>
+            <button onclick="testConnection()">🔄 Testar Conexão</button>
+        </div>
+
+        <div class="test-section">
+            <h3>👥 Pacientes Disponíveis</h3>
+            <div id="patients-list">Carregando pacientes...</div>
+            <button onclick="loadPatients()">🔄 Recarregar Pacientes</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Formulário de Teste</h3>
+            <form id="care-form">
+                <div class="form-group">
+                    <label for="patient-select">Paciente:</label>
+                    <select id="patient-select" required>
+                        <option value="">Selecione um paciente...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="care-type">Tipo de Cuidado:</label>
+                    <select id="care-type" required>
+                        <option value="">Selecione o tipo...</option>
+                        <option value="meal">Refeição/Líquido</option>
+                        <option value="bathroom">Banheiro</option>
+                        <option value="mood">Humor</option>
+                        <option value="medication">Medicação</option>
+                        <option value="drain">Dreno</option>
+                        <option value="vital_signs">Sinais Vitais</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Observações:</label>
+                    <textarea id="notes" rows="3" placeholder="Digite as observações..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="volume">Volume (ml) - opcional:</label>
+                    <input type="number" id="volume" min="0" placeholder="Ex: 250">
+                </div>
+
+                <button type="submit">💾 Salvar Registro</button>
+                <button type="button" onclick="clearForm()">🗑️ Limpar</button>
+            </form>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Últimos Registros Salvos</h3>
+            <div id="recent-records">Carregando registros...</div>
+            <button onclick="loadRecentRecords()">🔄 Atualizar</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Log de Depuração</h3>
+            <div id="debug-log" class="log">Aguardando ações...</div>
+            <button onclick="clearLog()">🗑️ Limpar Log</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuração do Supabase
+        const supabaseUrl = 'https://envqimsupjgovuofbghj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnFpbXN1cGpnb3Z1b2ZiZ2hqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MTEyMzQsImV4cCI6MjA3MzM4NzIzNH0.5OJAgPbqiTEomwuMzOfisow2G1m2wVxZ3nGIkekTNjU';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let patients = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debug-log');
+            const typeIcon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${typeIcon} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('debug-log').textContent = 'Log limpo...\n';
+        }
+
+        async function testConnection() {
+            log('Testando conexão com Supabase...');
+            try {
+                const { data, error } = await supabase.from('patients').select('count').limit(1);
+                if (error) {
+                    log(`Erro na conexão: ${error.message}`, 'error');
+                    document.getElementById('connection-status').innerHTML = '❌ Erro na conexão';
+                } else {
+                    log('Conexão com Supabase OK!', 'success');
+                    document.getElementById('connection-status').innerHTML = '✅ Conexão OK';
+                }
+            } catch (err) {
+                log(`Erro inesperado: ${err.message}`, 'error');
+                document.getElementById('connection-status').innerHTML = '❌ Erro inesperado';
+            }
+        }
+
+        async function loadPatients() {
+            log('Carregando pacientes...');
+            try {
+                const { data, error } = await supabase
+                    .from('patients')
+                    .select('id, full_name')
+                    .order('full_name');
+
+                if (error) {
+                    log(`Erro ao carregar pacientes: ${error.message}`, 'error');
+                    document.getElementById('patients-list').innerHTML = '❌ Erro ao carregar pacientes';
+                    return;
+                }
+
+                patients = data || [];
+                log(`${patients.length} pacientes carregados`, 'success');
+                
+                // Atualizar lista visual
+                const patientsList = document.getElementById('patients-list');
+                if (patients.length === 0) {
+                    patientsList.innerHTML = '⚠️ Nenhum paciente encontrado';
+                } else {
+                    patientsList.innerHTML = patients.map(p => 
+                        `<div>👤 ${p.full_name} (ID: ${p.id})</div>`
+                    ).join('');
+                }
+
+                // Atualizar select
+                const select = document.getElementById('patient-select');
+                select.innerHTML = '<option value="">Selecione um paciente...</option>';
+                patients.forEach(patient => {
+                    const option = document.createElement('option');
+                    option.value = patient.id;
+                    option.textContent = patient.full_name;
+                    select.appendChild(option);
+                });
+
+            } catch (err) {
+                log(`Erro inesperado ao carregar pacientes: ${err.message}`, 'error');
+            }
+        }
+
+        async function loadRecentRecords() {
+            log('Carregando registros recentes...');
+            try {
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('id, type, occurred_at, notes, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                if (error) {
+                    log(`Erro ao carregar registros: ${error.message}`, 'error');
+                    document.getElementById('recent-records').innerHTML = '❌ Erro ao carregar registros';
+                    return;
+                }
+
+                const records = data || [];
+                log(`${records.length} registros carregados`, 'success');
+                
+                const recordsDiv = document.getElementById('recent-records');
+                if (records.length === 0) {
+                    recordsDiv.innerHTML = '⚠️ Nenhum registro encontrado';
+                } else {
+                    recordsDiv.innerHTML = records.map(record => {
+                        const date = new Date(record.created_at).toLocaleString();
+                        return `<div style="margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 3px;">
+                            📋 <strong>${record.type}</strong> - ${date}<br>
+                            💬 ${record.notes?.substring(0, 50)}${record.notes?.length > 50 ? '...' : ''}
+                        </div>`;
+                    }).join('');
+                }
+
+            } catch (err) {
+                log(`Erro inesperado ao carregar registros: ${err.message}`, 'error');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('care-form').reset();
+            log('Formulário limpo');
+        }
+
+        // Event listener para o formulário
+        document.getElementById('care-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('patient-select').value;
+            const careType = document.getElementById('care-type').value;
+            const notes = document.getElementById('notes').value;
+            const volume = document.getElementById('volume').value;
+
+            if (!patientId || !careType) {
+                log('Paciente e tipo de cuidado são obrigatórios!', 'error');
+                return;
+            }
+
+            log(`Tentando salvar registro: ${careType} para paciente ${patientId}`);
+
+            try {
+                // Preparar dados do registro
+                const eventData = {
+                    patient_id: patientId,
+                    type: careType,
+                    occurred_at: new Date().toISOString(),
+                    notes: notes || `Registro de ${careType} - Teste de interface`
+                };
+
+                // Adicionar volume se fornecido
+                if (volume && parseInt(volume) > 0) {
+                    eventData.volume_ml = parseInt(volume);
+                }
+
+                log(`Dados a serem salvos: ${JSON.stringify(eventData, null, 2)}`);
+
+                // Tentar salvar no banco
+                const { data, error } = await supabase
+                    .from('events')
+                    .insert(eventData)
+                    .select()
+                    .single();
+
+                if (error) {
+                    log(`❌ ERRO ao salvar: ${error.message}`, 'error');
+                    log(`Detalhes do erro: ${JSON.stringify(error, null, 2)}`, 'error');
+                    return;
+                }
+
+                if (!data) {
+                    log('❌ Nenhum dado retornado após salvamento', 'error');
+                    return;
+                }
+
+                log(`✅ SUCESSO! Registro salvo com ID: ${data.id}`, 'success');
+                log(`Dados salvos: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+                // Limpar formulário e atualizar registros
+                clearForm();
+                loadRecentRecords();
+
+            } catch (err) {
+                log(`❌ ERRO INESPERADO: ${err.message}`, 'error');
+                log(`Stack trace: ${err.stack}`, 'error');
+            }
+        });
+
+        // Inicializar página
+        window.addEventListener('load', () => {
+            log('Página carregada, iniciando testes...');
+            testConnection();
+            loadPatients();
+            loadRecentRecords();
+        });
+    </script>
+</body>
+</html>

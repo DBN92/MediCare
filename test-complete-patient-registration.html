@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Cadastro Completo de Pacientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .test-section h2 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .success {
+            color: #16a34a;
+            background-color: #dcfce7;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #dc2626;
+            background-color: #fef2f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .instructions {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .instructions h3 {
+            color: #1e40af;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Teste - Cadastro Completo de Pacientes</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instruções do Teste</h3>
+            <p>Este teste verifica se o formulário de cadastro de pacientes inclui todos os campos disponíveis no formulário de edição:</p>
+            <ul>
+                <li><strong>Campos básicos:</strong> Nome, Data de Nascimento, Email, Telefone</li>
+                <li><strong>Campos adicionais:</strong> Data de Admissão, Leito, Observações, Status</li>
+                <li><strong>Foto:</strong> Upload e preview da foto do paciente</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Formulário de Cadastro Completo</h2>
+            <form id="patientForm">
+                <div class="form-group">
+                    <label for="name">Nome Completo *</label>
+                    <input type="text" id="name" name="name" required placeholder="Digite o nome completo do paciente">
+                </div>
+
+                <div class="form-group">
+                    <label for="birth_date">Data de Nascimento *</label>
+                    <input type="date" id="birth_date" name="birth_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="email@exemplo.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefone</label>
+                    <input type="tel" id="phone" name="phone" placeholder="(11) 99999-9999">
+                </div>
+
+                <div class="form-group">
+                    <label for="admission_date">Data de Admissão</label>
+                    <input type="date" id="admission_date" name="admission_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="bed">Leito</label>
+                    <input type="text" id="bed" name="bed" placeholder="Ex: Leito 101, Quarto 205">
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">Selecione o status</option>
+                        <option value="ativo">Ativo</option>
+                        <option value="inativo">Inativo</option>
+                        <option value="alta">Alta</option>
+                        <option value="transferido">Transferido</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Observações</label>
+                    <textarea id="notes" name="notes" placeholder="Observações gerais sobre o paciente..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="photo">Foto do Paciente</label>
+                    <input type="file" id="photo" name="photo" accept="image/*">
+                    <div id="photoPreview"></div>
+                </div>
+
+                <button type="submit">💾 Cadastrar Paciente</button>
+                <button type="button" onclick="fillTestData()">🧪 Preencher Dados de Teste</button>
+                <button type="button" onclick="clearForm()">🗑️ Limpar Formulário</button>
+            </form>
+        </div>
+
+        <div id="results" class="test-section" style="display: none;">
+            <h2>📊 Resultados do Teste</h2>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        // Configuração do Supabase
+        const supabaseUrl = 'http://supabasekong-o48k40w0koggco4ocok4gs0o.31.97.64.167.sslip.io';
+        const supabaseKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc1NzM2MDgyMCwiZXhwIjo0OTEzMDM0NDIwLCJyb2xlIjoiYW5vbiJ9.mDC5HL6lFytb7Y0lowHRS0PBiQwpFXxXfIBe3UNx6oA';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let photoData = null;
+
+        // Função para preencher dados de teste
+        window.fillTestData = function() {
+            document.getElementById('name').value = 'João Silva Santos';
+            document.getElementById('birth_date').value = '1985-06-15';
+            document.getElementById('email').value = 'joao.silva@email.com';
+            document.getElementById('phone').value = '(11) 98765-4321';
+            document.getElementById('admission_date').value = '2024-01-15';
+            document.getElementById('bed').value = 'Leito 205';
+            document.getElementById('status').value = 'ativo';
+            document.getElementById('notes').value = 'Paciente com histórico de hipertensão. Necessita acompanhamento regular da pressão arterial.';
+        };
+
+        // Função para limpar formulário
+        window.clearForm = function() {
+            document.getElementById('patientForm').reset();
+            document.getElementById('photoPreview').innerHTML = '';
+            photoData = null;
+            document.getElementById('results').style.display = 'none';
+        };
+
+        // Preview da foto
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('photoPreview');
+            
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    showResult('Erro: Por favor, selecione apenas arquivos de imagem.', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoData = e.target.result;
+                    preview.innerHTML = `
+                        <img src="${photoData}" class="photo-preview" alt="Preview da foto">
+                        <p>Foto carregada: ${file.name}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+                photoData = null;
+            }
+        });
+
+        // Função para mostrar resultados
+        function showResult(message, type = 'success') {
+            const results = document.getElementById('results');
+            const content = document.getElementById('resultContent');
+            
+            content.innerHTML = `<div class="${type}">${message}</div>`;
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Submissão do formulário
+        document.getElementById('patientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const patientData = {
+                name: formData.get('name'),
+                birth_date: formData.get('birth_date'),
+                email: formData.get('email') || '',
+                phone: formData.get('phone') || '',
+                admission_date: formData.get('admission_date') || null,
+                bed: formData.get('bed') || null,
+                status: formData.get('status') || null,
+                notes: formData.get('notes') || null,
+                photo: photoData || null
+            };
+
+            // Validação básica
+            if (!patientData.name || !patientData.birth_date) {
+                showResult('Erro: Nome e Data de Nascimento são obrigatórios.', 'error');
+                return;
+            }
+
+            try {
+                showResult('⏳ Cadastrando paciente...', 'success');
+
+                // Preparar dados para inserção
+                const insertData = {
+                    name: patientData.name,
+                    full_name: patientData.name,
+                    birth_date: patientData.birth_date,
+                    email: patientData.email,
+                    phone: patientData.phone,
+                    user_id: '1759161912917' // ID de usuário de teste
+                };
+
+                // Adicionar campos opcionais apenas se tiverem valor
+                if (patientData.admission_date) insertData.admission_date = patientData.admission_date;
+                if (patientData.bed) insertData.bed = patientData.bed;
+                if (patientData.status) insertData.status = patientData.status;
+                if (patientData.notes) insertData.notes = patientData.notes;
+                if (patientData.photo) insertData.photo = patientData.photo;
+
+                const { data, error } = await supabase
+                    .from('patients')
+                    .insert([insertData])
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                // Sucesso
+                let successMessage = `
+                    <h3>✅ Paciente cadastrado com sucesso!</h3>
+                    <p><strong>ID:</strong> ${data.id}</p>
+                    <p><strong>Nome:</strong> ${data.name}</p>
+                    <p><strong>Nome Completo:</strong> ${data.full_name}</p>
+                    <p><strong>Data de Nascimento:</strong> ${data.birth_date}</p>
+                    <p><strong>Email:</strong> ${data.email || 'Não informado'}</p>
+                    <p><strong>Telefone:</strong> ${data.phone || 'Não informado'}</p>
+                `;
+
+                // Adicionar campos opcionais se existirem
+                if (data.admission_date) successMessage += `<p><strong>Data de Admissão:</strong> ${data.admission_date}</p>`;
+                if (data.bed) successMessage += `<p><strong>Leito:</strong> ${data.bed}</p>`;
+                if (data.status) successMessage += `<p><strong>Status:</strong> ${data.status}</p>`;
+                if (data.notes) successMessage += `<p><strong>Observações:</strong> ${data.notes}</p>`;
+                if (data.photo) successMessage += `<p><strong>Foto:</strong> ✅ Carregada</p>`;
+
+                successMessage += `<p><strong>Criado em:</strong> ${new Date(data.created_at).toLocaleString('pt-BR')}</p>`;
+
+                showResult(successMessage, 'success');
+
+                // Limpar formulário após sucesso
+                setTimeout(() => {
+                    clearForm();
+                }, 3000);
+
+            } catch (error) {
+                console.error('Erro ao cadastrar paciente:', error);
+                
+                let errorMessage = `
+                    <h3>❌ Erro ao cadastrar paciente</h3>
+                    <p><strong>Mensagem:</strong> ${error.message}</p>
+                `;
+
+                // Analisar erros específicos
+                if (error.message.includes('column') && error.message.includes('does not exist')) {
+                    const match = error.message.match(/column "([^"]+)"/);
+                    if (match) {
+                        errorMessage += `<p><strong>Campo não encontrado:</strong> ${match[1]}</p>`;
+                        errorMessage += `<p>⚠️ Este campo pode não existir na tabela do banco de dados.</p>`;
+                    }
+                }
+
+                showResult(errorMessage, 'error');
+            }
+        });
+
+        // Inicialização
+        console.log('🏥 Teste de Cadastro Completo de Pacientes carregado');
+        console.log('📊 Campos testados: nome, data_nascimento, email, telefone, data_admissao, leito, status, observacoes, foto');
+    </script>
+</body>
+</html>

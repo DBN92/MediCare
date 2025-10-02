@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correção RLS - Medical Records</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .error-info {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .error-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .steps {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .sql-script {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        .success-msg {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .warning {
+            background: #fffbeb;
+            border: 1px solid #fed7aa;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .critical {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .diagnosis {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Correção DEFINITIVA de Políticas RLS</h1>
+            <h2>Tabela medical_records - Erro 42501</h2>
+        </div>
+
+        <div class="diagnosis">
+            <h3>🔍 Diagnóstico do Problema</h3>
+            <p><strong>Problema identificado:</strong> Conflito entre políticas RLS antigas e novas na tabela <code>medical_records</code>.</p>
+            <p><strong>Causa raiz:</strong> Algumas políticas usam <code>created_by = auth.uid()</code> enquanto outras usam <code>doctor_id = auth.uid()</code>, mas o schema atual da tabela usa apenas <code>doctor_id</code>.</p>
+            <p><strong>Resultado:</strong> O Supabase não consegue determinar qual política aplicar, causando o erro 42501.</p>
+        </div>
+
+        <div class="error-info">
+            <h3>❌ Erro Reportado</h3>
+            <div class="error-code">
+Erro ao criar novo prontuário: {code: 42501, details: null, hint: null, message: new row violates row-level security policy for table "medical_records"}
+
+Dados do formulário: {
+  patient_id: 38df9b1b-4cae-45e5-ba53-622837b67795, 
+  doctor_id: ef1d2d68-179a-41e6-9b75-1b96d88028a0, 
+  record_date: 2025-09-29, 
+  chief_complaint: , 
+  history_present_illness: 
+}
+            </div>
+        </div>
+
+        <div class="critical">
+            <h3>🚨 SOLUÇÃO OBRIGATÓRIA</h3>
+            <p><strong>Este erro DEVE ser corrigido executando o script SQL abaixo no Supabase Dashboard.</strong></p>
+            <p>O script remove TODAS as políticas conflitantes e cria novas políticas consistentes.</p>
+        </div>
+
+        <div class="steps">
+            <h3>📋 Passos OBRIGATÓRIOS para Correção</h3>
+            <ol>
+                <li><strong>Acesse o Supabase Dashboard</strong> do seu projeto</li>
+                <li>Vá para <strong>SQL Editor</strong> (ícone de código no menu lateral)</li>
+                <li><strong>Copie o script completo</strong> abaixo (botão "📋 Copiar Script")</li>
+                <li><strong>Cole no SQL Editor</strong> e clique em "Run"</li>
+                <li><strong>Aguarde a execução</strong> (deve mostrar "Success" para cada comando)</li>
+                <li><strong>Teste novamente</strong> o salvamento do prontuário na aplicação</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>Importante:</strong> Este script é seguro e pode ser executado múltiplas vezes. Ele não afeta dados existentes, apenas corrige as políticas de segurança.
+        </div>
+
+        <h3>🔧 Script de Correção DEFINITIVA</h3>
+        <div class="sql-script">
+            <button class="copy-btn" onclick="copyScript()">📋 Copiar Script</button>
+<pre id="sqlScript">-- ========================================
+-- CORREÇÃO DEFINITIVA DE POLÍTICAS RLS
+-- Tabela: medical_records
+-- Problema: Conflito entre created_by e doctor_id
+-- ========================================
+
+-- PASSO 1: Remover TODAS as políticas RLS conflitantes
+-- (Isso é seguro - não afeta dados, apenas políticas de acesso)
+
+DROP POLICY IF EXISTS "Users can view own medical records" ON medical_records;
+DROP POLICY IF EXISTS "Users can create own medical records" ON medical_records;
+DROP POLICY IF EXISTS "Users can update own medical records" ON medical_records;
+DROP POLICY IF EXISTS "Users can delete own medical records" ON medical_records;
+DROP POLICY IF EXISTS "Doctors can view medical records" ON medical_records;
+DROP POLICY IF EXISTS "Doctors can create medical records" ON medical_records;
+DROP POLICY IF EXISTS "Doctors can update medical records" ON medical_records;
+DROP POLICY IF EXISTS "Enable read access for users based on created_by" ON medical_records;
+DROP POLICY IF EXISTS "Enable insert for users based on created_by" ON medical_records;
+DROP POLICY IF EXISTS "Enable update for users based on created_by" ON medical_records;
+DROP POLICY IF EXISTS "Enable delete for users based on created_by" ON medical_records;
+DROP POLICY IF EXISTS "Enable read access for users based on doctor_id" ON medical_records;
+DROP POLICY IF EXISTS "Enable insert for users based on doctor_id" ON medical_records;
+DROP POLICY IF EXISTS "Enable update for users based on doctor_id" ON medical_records;
+DROP POLICY IF EXISTS "Enable delete for users based on doctor_id" ON medical_records;
+DROP POLICY IF EXISTS "medical_records_select_policy" ON medical_records;
+DROP POLICY IF EXISTS "medical_records_insert_policy" ON medical_records;
+DROP POLICY IF EXISTS "medical_records_update_policy" ON medical_records;
+DROP POLICY IF EXISTS "medical_records_delete_policy" ON medical_records;
+
+-- PASSO 2: Garantir que RLS está habilitado
+ALTER TABLE medical_records ENABLE ROW LEVEL SECURITY;
+
+-- PASSO 3: Criar políticas RLS DEFINITIVAS e CONSISTENTES
+-- Todas usam doctor_id = auth.uid() (conforme schema atual)
+
+CREATE POLICY "medical_records_select_policy" ON medical_records
+  FOR SELECT 
+  USING (doctor_id = auth.uid());
+
+CREATE POLICY "medical_records_insert_policy" ON medical_records
+  FOR INSERT 
+  WITH CHECK (doctor_id = auth.uid());
+
+CREATE POLICY "medical_records_update_policy" ON medical_records
+  FOR UPDATE 
+  USING (doctor_id = auth.uid())
+  WITH CHECK (doctor_id = auth.uid());
+
+CREATE POLICY "medical_records_delete_policy" ON medical_records
+  FOR DELETE 
+  USING (doctor_id = auth.uid());
+
+-- PASSO 4: Verificar se as políticas foram criadas corretamente
+SELECT 
+  schemaname, 
+  tablename, 
+  policyname, 
+  permissive, 
+  roles, 
+  cmd, 
+  qual, 
+  with_check
+FROM pg_policies 
+WHERE tablename = 'medical_records'
+ORDER BY policyname;
+
+-- ========================================
+-- RESULTADO ESPERADO:
+-- Deve mostrar exatamente 4 políticas:
+-- 1. medical_records_delete_policy
+-- 2. medical_records_insert_policy  
+-- 3. medical_records_select_policy
+-- 4. medical_records_update_policy
+-- ========================================</pre>
+        </div>
+
+        <div class="success-msg" id="successMsg">
+            ✅ Script copiado para a área de transferência!
+        </div>
+
+        <div class="warning">
+            <h4>🔍 Após executar o script, você deve ver:</h4>
+            <ul>
+                <li><strong>4 políticas criadas</strong> (select, insert, update, delete)</li>
+                <li><strong>Todas usando doctor_id = auth.uid()</strong></li>
+                <li><strong>Nenhuma política usando created_by</strong></li>
+                <li><strong>O erro 42501 deve desaparecer</strong> ao salvar prontuários</li>
+            </ul>
+        </div>
+
+        <div class="critical">
+            <h4>🚨 Se o erro persistir após executar o script:</h4>
+            <ol>
+                <li>Verifique se o usuário está logado na aplicação</li>
+                <li>Confirme se o doctor_id no formulário corresponde ao usuário logado</li>
+                <li>Recarregue a página da aplicação (Ctrl+F5 ou Cmd+Shift+R)</li>
+                <li>Tente criar um novo prontuário</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function copyScript() {
+            const script = document.getElementById('sqlScript').textContent;
+            navigator.clipboard.writeText(script).then(function() {
+                const successMsg = document.getElementById('successMsg');
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>

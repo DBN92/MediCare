@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Acesso Modo Família</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        .test-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        .test-button.success { background: #28a745; }
+        .test-button.warning { background: #ffc107; color: #212529; }
+        .test-button.danger { background: #dc3545; }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-warning { background: #ffc107; }
+        .status-error { background: #dc3545; }
+        .status-info { background: #17a2b8; }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .result-success { background: #d4edda; color: #155724; }
+        .result-error { background: #f8d7da; color: #721c24; }
+        .result-info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🏥 Teste de Acesso - Modo Família</h1>
+    <p><strong>Servidor:</strong> <span id="server-url">http://localhost:8080</span></p>
+
+    <div class="test-card">
+        <h2>🔐 1. Teste de Login Familiar</h2>
+        <p>Testa se a página de login do modo família carrega corretamente.</p>
+        <a href="http://localhost:8080/family/login" class="test-button" target="_blank" onclick="logTest('Login Familiar')">
+            🔐 Abrir Login Familiar
+        </a>
+        <div id="login-result" class="test-result result-info">Clique no botão acima para testar</div>
+    </div>
+
+    <div class="test-card">
+        <h2>👨‍⚕️ 2. Teste de Dashboard (Editor)</h2>
+        <p>Testa o acesso ao dashboard com permissões de editor.</p>
+        <a href="http://localhost:8080/family/test-patient-1/test-token-editor/dashboard" class="test-button" target="_blank" onclick="logTest('Dashboard Editor')">
+            📊 Dashboard Editor
+        </a>
+        <div id="dashboard-editor-result" class="test-result result-info">Clique no botão acima para testar</div>
+    </div>
+
+    <div class="test-card">
+        <h2>📝 3. Teste de Registro de Cuidados</h2>
+        <p>Testa se é possível acessar a página de registro de cuidados.</p>
+        <a href="http://localhost:8080/family/test-patient-1/test-token-editor/care" class="test-button" target="_blank" onclick="logTest('Registro Cuidados')">
+            📝 Registrar Cuidados
+        </a>
+        <div id="care-result" class="test-result result-info">Clique no botão acima para testar</div>
+    </div>
+
+    <div class="test-card">
+        <h2>👁️ 4. Teste de Dashboard (Viewer)</h2>
+        <p>Testa o acesso ao dashboard com permissões somente leitura.</p>
+        <a href="http://localhost:8080/family/test-patient-1/test-token-viewer/dashboard" class="test-button warning" target="_blank" onclick="logTest('Dashboard Viewer')">
+            👁️ Dashboard Viewer
+        </a>
+        <div id="dashboard-viewer-result" class="test-result result-info">Clique no botão acima para testar</div>
+    </div>
+
+    <div class="test-card">
+        <h2>📋 5. Teste de Prontuário Médico</h2>
+        <p>Testa o acesso ao prontuário médico do paciente.</p>
+        <a href="http://localhost:8080/family/test-patient-1/test-token-editor/medical" class="test-button success" target="_blank" onclick="logTest('Prontuário Médico')">
+            📋 Prontuário Médico
+        </a>
+        <div id="medical-result" class="test-result result-info">Clique no botão acima para testar</div>
+    </div>
+
+    <div class="test-card">
+        <h2>🧪 Resultados dos Testes</h2>
+        <div id="test-log">
+            <div class="test-result result-info">
+                <span class="status-indicator status-info"></span>
+                Aguardando testes...
+            </div>
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>🔧 Diagnóstico Automático</h2>
+        <button onclick="runDiagnostics()" class="test-button">🔍 Executar Diagnóstico</button>
+        <div id="diagnostics-result"></div>
+    </div>
+
+    <div class="test-card">
+        <h2>📝 Instruções de Teste</h2>
+        <ol>
+            <li><strong>Login Familiar:</strong> Deve carregar uma página com formulário de login</li>
+            <li><strong>Dashboard Editor:</strong> Deve mostrar dashboard com botões de ação habilitados</li>
+            <li><strong>Registro de Cuidados:</strong> Deve permitir selecionar tipos de cuidado</li>
+            <li><strong>Dashboard Viewer:</strong> Deve mostrar dashboard em modo somente leitura</li>
+            <li><strong>Prontuário:</strong> Deve exibir informações médicas do paciente</li>
+        </ol>
+    </div>
+
+    <script>
+        let testCount = 0;
+        
+        function logTest(testName) {
+            testCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('test-log');
+            
+            logDiv.innerHTML += `
+                <div class="test-result result-info">
+                    <span class="status-indicator status-info"></span>
+                    [${timestamp}] Teste ${testCount}: ${testName} - Iniciado
+                </div>
+            `;
+            
+            // Scroll para o final do log
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function runDiagnostics() {
+            const diagnosticsDiv = document.getElementById('diagnostics-result');
+            diagnosticsDiv.innerHTML = '<div class="test-result result-info">🔍 Executando diagnóstico...</div>';
+            
+            const tests = [
+                {
+                    name: 'Servidor Principal',
+                    url: 'http://localhost:8080',
+                    expected: 200
+                },
+                {
+                    name: 'Página de Login Familiar',
+                    url: 'http://localhost:8080/family/login',
+                    expected: 200
+                },
+                {
+                    name: 'Dashboard Familiar',
+                    url: 'http://localhost:8080/family/test-patient-1/test-token-editor/dashboard',
+                    expected: 200
+                }
+            ];
+            
+            let results = '';
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.url, { method: 'HEAD' });
+                    const status = response.status;
+                    const success = status === test.expected;
+                    
+                    results += `
+                        <div class="test-result ${success ? 'result-success' : 'result-error'}">
+                            <span class="status-indicator ${success ? 'status-success' : 'status-error'}"></span>
+                            ${test.name}: ${status} ${success ? '✅' : '❌'}
+                        </div>
+                    `;
+                } catch (error) {
+                    results += `
+                        <div class="test-result result-error">
+                            <span class="status-indicator status-error"></span>
+                            ${test.name}: Erro - ${error.message} ❌
+                        </div>
+                    `;
+                }
+            }
+            
+            diagnosticsDiv.innerHTML = results;
+        }
+
+        // Executar diagnóstico inicial
+        setTimeout(runDiagnostics, 1000);
+    </script>
+</body>
+</html>
