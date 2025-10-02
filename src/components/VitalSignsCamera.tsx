@@ -1,11 +1,12 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Camera, X, Check, RotateCcw, Loader2, AlertCircle, SwitchCamera, Edit3 } from 'lucide-react'
+import { Camera, X, Check, RotateCcw, Loader2, AlertCircle, SwitchCamera, Edit3, Upload, FileImage, Activity, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
+import { useCameraAvailable } from '@/hooks/useDeviceDetection'
 import { useVitalSignsOCR, VitalSignsData } from '@/services/vitalSignsOCR'
 
 interface VitalSignsCameraProps {
@@ -28,17 +29,27 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
   const [isEditing, setIsEditing] = useState(false)
   const [editableData, setEditableData] = useState<VitalSignsData | null>(null)
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
+  const [cameraError, setCameraError] = useState<string | null>(null)
   
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const { toast } = useToast()
   const { processImage } = useVitalSignsOCR()
+  const { hasCameraSupport, isCheckingCamera } = useCameraAvailable()
 
   // Iniciar câmera
   const startCamera = useCallback(async () => {
     try {
+      setCameraError(null)
+      
+      // Verificar se o navegador suporta getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Seu navegador não suporta acesso à câmera')
+      }
+      
       const constraints = {
         video: {
           facingMode,
@@ -71,9 +82,27 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
       setIsStreaming(true)
     } catch (error) {
       console.error('Erro ao acessar câmera:', error)
+      
+      let errorMessage = "Não foi possível acessar a câmera."
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = "Permissão de câmera negada. Verifique as configurações do navegador."
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = "Nenhuma câmera encontrada no dispositivo."
+        } else if (error.name === 'NotSupportedError') {
+          errorMessage = "Câmera não suportada neste navegador."
+        } else if (error.name === 'NotReadableError') {
+          errorMessage = "Câmera está sendo usada por outro aplicativo."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      setCameraError(errorMessage)
       toast({
         title: "Erro de Câmera",
-        description: "Não foi possível acessar a câmera. Verifique as permissões.",
+        description: errorMessage + " Você pode fazer upload de uma imagem como alternativa.",
         variant: "destructive"
       })
     }
@@ -151,6 +180,46 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
       setIsProcessing(false)
     }
   }, [capturedImage, processImage, toast, patientId])
+
+  // Função para lidar com upload de arquivo
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Verificar se é uma imagem
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Arquivo inválido",
+        description: "Por favor, selecione uma imagem.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Verificar tamanho do arquivo (máximo 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "Por favor, selecione uma imagem menor que 10MB.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      setCapturedImage(result)
+      setIsStreaming(false)
+      stopCamera()
+    }
+    reader.readAsDataURL(file)
+  }, [toast])
+
+  // Função para abrir seletor de arquivo
+  const openFileSelector = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
 
   // Validar dados extraídos
   const validateData = useCallback((data: VitalSignsData): { isValid: boolean; errors: string[] } => {
@@ -325,12 +394,44 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
                 />
                 <canvas ref={canvasRef} className="hidden" />
                 
+                {/* Input de arquivo oculto */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                
                 {/* Overlay de guia */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="border-2 border-white border-dashed rounded-lg w-3/4 h-3/4 flex items-center justify-center">
                     <div className="text-white text-center">
-                      <Camera className="h-8 w-8 mx-auto mb-2" />
-                      <p className="text-sm">Posicione os dados aqui</p>
+                      {cameraError ? (
+                        <>
+                          <AlertCircle className="h-8 w-8 mx-auto mb-2 text-red-400" />
+                          <p className="text-sm mb-4">{cameraError}</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white text-gray-900 hover:bg-gray-100"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Fazer Upload
+                          </Button>
+                        </>
+                      ) : isCheckingCamera ? (
+                        <>
+                          <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                          <p className="text-sm">Verificando câmera...</p>
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="h-8 w-8 mx-auto mb-2" />
+                          <p className="text-sm">Posicione os dados aqui</p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -502,6 +603,17 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
                   <Camera className="h-4 w-4 mr-2" />
                   Capturar
                 </Button>
+                
+                {/* Botão de upload como alternativa */}
+                <Button
+                  onClick={openFileSelector}
+                  variant="outline"
+                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload
+                </Button>
+                
                 <Button
                   variant="outline"
                   onClick={switchCamera}
