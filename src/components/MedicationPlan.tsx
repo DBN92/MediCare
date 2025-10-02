@@ -57,8 +57,15 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     frequency: 'once_daily',
     times: ['08:00'],
     instructions: '',
-    is_active: true
+    is_active: true,
+    usage_period: 'continuous',
+    custom_period: 0
   })
+
+  const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const frequencyOptions = [
     { value: 'once_daily', label: 'Uma vez ao dia', times: ['08:00'] },
@@ -136,7 +143,9 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
         frequency: 'once_daily',
         times: ['08:00'],
         instructions: '',
-        is_active: true
+        is_active: true,
+        usage_period: 'continuous',
+        custom_period: 0
       })
       setShowAddModal(false)
 
@@ -164,6 +173,69 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
       toast({
         title: "Erro",
         description: "Erro ao remover medicamento",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleEditMedication = (medication: Medication) => {
+    setEditingMedication(medication)
+    setNewMedication({
+      name: medication.name,
+      dose: medication.dose,
+      frequency: medication.frequency,
+      times: medication.times,
+      instructions: medication.instructions || '',
+      is_active: medication.is_active,
+      usage_period: 'continuous', // Campo temporário até ser adicionado ao banco
+      custom_period: 0 // Campo temporário até ser adicionado ao banco
+    })
+    setShowEditModal(true)
+  }
+
+  const handleUpdateMedication = async () => {
+    if (!editingMedication) return
+    
+    if (!newMedication.name.trim() || !newMedication.dose.trim()) {
+      toast({
+        title: "Erro",
+        description: "Nome e dose são obrigatórios",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      await updateMedication(editingMedication.id, {
+        name: newMedication.name,
+        dose: newMedication.dose,
+        frequency: newMedication.frequency,
+        times: newMedication.times,
+        instructions: newMedication.instructions,
+        is_active: newMedication.is_active
+      })
+
+      setNewMedication({
+        name: '',
+        dose: '',
+        frequency: 'once_daily',
+        times: ['08:00'],
+        instructions: '',
+        is_active: true,
+        usage_period: 'continuous',
+        custom_period: 0
+      })
+      setShowEditModal(false)
+      setEditingMedication(null)
+      
+      toast({
+        title: "Sucesso",
+        description: "Medicamento atualizado com sucesso"
+      })
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar medicamento",
         variant: "destructive"
       })
     }
@@ -223,7 +295,9 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
         frequency: medication.frequency || 'once_daily',
         times: medication.times || ['08:00'],
         instructions: medication.instructions || '',
-        is_active: true
+        is_active: true,
+        usage_period: 'continuous',
+        custom_period: 0
       })
       setShowAddModal(true)
     }
@@ -240,16 +314,16 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-screen overflow-y-auto pb-20 px-1">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 sticky top-0 bg-white z-10 pb-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Pill className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+              <Pill className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-blue-600" />
               Plano de Medicação
             </h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+            <p className="text-gray-600 mt-1 text-xs sm:text-sm lg:text-base">
               Paciente: <span className="font-medium">{patientName}</span>
             </p>
           </div>
@@ -257,22 +331,23 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Button 
               onClick={() => isDesktop ? setShowQRCode(true) : setShowCamera(true)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto text-xs sm:text-sm"
               variant="outline"
+              size="sm"
             >
-              <Camera className="w-4 h-4 mr-2" />
+              <Camera className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Capturar Receita</span>
               <span className="sm:hidden">Câmera</span>
             </Button>
             <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
               <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                  <Plus className="w-4 h-4 mr-2" />
+                <Button className="w-full sm:w-auto text-xs sm:text-sm" size="sm">
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Adicionar Medicamento</span>
                   <span className="sm:hidden">Adicionar</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Adicionar Novo Medicamento</DialogTitle>
                   <DialogDescription>
@@ -365,6 +440,40 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                     />
                   </div>
 
+                  <div>
+                    <Label htmlFor="usage_period">Período de Utilização</Label>
+                    <Select 
+                      value={newMedication.usage_period || 'continuous'} 
+                      onValueChange={(value) => setNewMedication(prev => ({ ...prev, usage_period: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o período" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="continuous">Contínuo</SelectItem>
+                        <SelectItem value="7_days">7 dias</SelectItem>
+                        <SelectItem value="14_days">14 dias</SelectItem>
+                        <SelectItem value="21_days">21 dias</SelectItem>
+                        <SelectItem value="30_days">30 dias</SelectItem>
+                        <SelectItem value="custom">Personalizado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {newMedication.usage_period === 'custom' && (
+                    <div>
+                      <Label htmlFor="custom_period">Período Personalizado (dias)</Label>
+                      <Input
+                        id="custom_period"
+                        type="number"
+                        min="1"
+                        value={newMedication.custom_period || ''}
+                        onChange={(e) => setNewMedication(prev => ({ ...prev, custom_period: parseInt(e.target.value) || 0 }))}
+                        placeholder="Ex: 45"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="is_active"
@@ -391,6 +500,159 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
           </div>
         </div>
       </div>
+
+      {/* Modal de Edição de Medicamento */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Medicamento</DialogTitle>
+            <DialogDescription>
+              Modifique as informações do medicamento conforme necessário.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-name">Nome do Medicamento</Label>
+                <Input
+                  id="edit-name"
+                  value={newMedication.name}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ex: Paracetamol"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-dose">Dose</Label>
+                <Input
+                  id="edit-dose"
+                  value={newMedication.dose}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, dose: e.target.value }))}
+                  placeholder="Ex: 500mg"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-frequency">Frequência</Label>
+              <Select value={newMedication.frequency} onValueChange={handleFrequencyChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {frequencyOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && (
+              <div>
+                <Label>Horários Personalizados</Label>
+                <div className="space-y-2 mt-2">
+                  {newMedication.times.map((time, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Input
+                        type="time"
+                        value={time}
+                        onChange={(e) => updateTime(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      {newMedication.times.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeTime(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTime}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Horário
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="edit-instructions">Instruções (opcional)</Label>
+              <Input
+                id="edit-instructions"
+                value={newMedication.instructions}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, instructions: e.target.value }))}
+                placeholder="Ex: Tomar após as refeições"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-usage_period">Período de Utilização</Label>
+              <Select 
+                value={newMedication.usage_period || 'continuous'} 
+                onValueChange={(value) => setNewMedication(prev => ({ ...prev, usage_period: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o período" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="continuous">Contínuo</SelectItem>
+                  <SelectItem value="7_days">7 dias</SelectItem>
+                  <SelectItem value="14_days">14 dias</SelectItem>
+                  <SelectItem value="21_days">21 dias</SelectItem>
+                  <SelectItem value="30_days">30 dias</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {newMedication.usage_period === 'custom' && (
+              <div>
+                <Label htmlFor="edit-custom_period">Período Personalizado (dias)</Label>
+                <Input
+                  id="edit-custom_period"
+                  type="number"
+                  min="1"
+                  value={newMedication.custom_period || ''}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, custom_period: parseInt(e.target.value) || 0 }))}
+                  placeholder="Ex: 45"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="edit-is_active"
+                checked={newMedication.is_active}
+                onCheckedChange={(checked) => 
+                  setNewMedication(prev => ({ ...prev, is_active: !!checked }))
+                }
+              />
+              <Label htmlFor="edit-is_active">Medicamento ativo</Label>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+            <Button variant="outline" onClick={() => setShowEditModal(false)} className="w-full sm:w-auto">
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdateMedication} className="w-full sm:w-auto">
+              <Edit className="w-4 h-4 mr-2" />
+              <span>Atualizar</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Filtro de Data */}
       <Card>
@@ -451,6 +713,13 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                     </CardDescription>
                   </div>
                   <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditMedication(medication)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
