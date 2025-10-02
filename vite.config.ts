@@ -16,5 +16,29 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     'process.env': {}
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: mode === 'development',
+    minify: mode === 'production' ? 'esbuild' : false,
+    target: 'es2015',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-toast', '@radix-ui/react-select'],
+          supabase: ['@supabase/supabase-js'],
+          utils: ['date-fns', 'clsx', 'tailwind-merge'],
+          tesseract: ['tesseract.js'],
+          qrcode: ['qrcode'],
+          charts: ['recharts']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 2000
+  },
+  preview: {
+    port: 8080,
+    host: true
   }
 }));

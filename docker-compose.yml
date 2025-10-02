@@ -6,14 +6,16 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}
-        - VITE_SUPABASE_PROJECT_ID=${VITE_SUPABASE_PROJECT_ID}
-        - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
         - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+        - VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}
+        - VITE_MEMED_API_KEY=${VITE_MEMED_API_KEY}
+        - VITE_MEMED_SECRET_KEY=${VITE_MEMED_SECRET_KEY}
+        - VITE_GOOGLE_VISION_API_KEY=${VITE_GOOGLE_VISION_API_KEY}
     ports:
       - "80:80"
     environment:
-      - NODE_ENV=production
+      - VITE_APP_ENV=production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
@@ -21,3 +23,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    # Configurações de recursos para produção
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    # Configurações de segurança
+    security_opt:
+      - no-new-privileges:true
+    # Logs estruturados
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
