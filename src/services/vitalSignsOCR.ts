@@ -54,23 +54,22 @@ export class VitalSignsOCR {
    */
   async processImage(imageData: string): Promise<OCRResult> {
     try {
-      // Tentar diferentes métodos de OCR em ordem de preferência
+      console.log('🔍 Iniciando processamento de OCR de sinais vitais com Tesseract.js...')
       
-      // 1. Tentar Google Vision API se disponível
-      if (OCR_CONFIG.GOOGLE_VISION.apiKey) {
-        const googleResult = await this.processWithGoogleVision(imageData)
-        if (googleResult.success) return googleResult
+      // Usar apenas Tesseract.js para OCR
+      const tesseractResult = await this.processWithTesseract(imageData)
+      
+      if (tesseractResult.success) {
+        console.log('✅ OCR de sinais vitais processado com sucesso usando Tesseract.js')
+        return tesseractResult
+      } else {
+        console.log('⚠️ Tesseract.js não conseguiu processar a imagem, usando simulação')
+        // Fallback para simulação se Tesseract falhar
+        return await this.processWithSimulation(imageData)
       }
       
-      // 2. Tentar Tesseract.js como fallback
-      const tesseractResult = await this.processWithTesseract(imageData)
-      if (tesseractResult.success) return tesseractResult
-      
-      // 3. Usar simulação como último recurso (para desenvolvimento)
-      return await this.processWithSimulation(imageData)
-      
     } catch (error) {
-      console.error('Erro no processamento OCR:', error)
+      console.error('❌ Erro no processamento OCR de sinais vitais:', error)
       return {
         success: false,
         error: 'Erro interno no processamento da imagem'
