@@ -549,9 +549,9 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
               </Select>
             </div>
 
-            {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && (
+            {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed' || newMedication.times.length > 0) && (
               <div>
-                <Label>Horários Personalizados</Label>
+                <Label>Horários {newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed' ? 'Personalizados' : 'de Administração'}</Label>
                 <div className="space-y-2 mt-2">
                   {newMedication.times.map((time, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -561,7 +561,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                         onChange={(e) => updateTime(index, e.target.value)}
                         className="flex-1"
                       />
-                      {newMedication.times.length > 1 && (
+                      {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && newMedication.times.length > 1 && (
                         <Button
                           type="button"
                           variant="outline"
@@ -573,15 +573,17 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                       )}
                     </div>
                   ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addTime}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Horário
-                  </Button>
+                  {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addTime}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Horário
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
