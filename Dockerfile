@@ -1,10 +1,6 @@
 # Etapa 1: Build 
 FROM node:20-alpine AS build
 
-# Variáveis do Nixpacks
-ARG NIXPACKS_PATH=.
-ENV NIXPACKS_PATH=$NIXPACKS_PATH 
-
 # Argumentos para variáveis de ambiente de produção
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
