@@ -38,6 +38,15 @@ export default function Care() {
   const { events, loading, addEvent, deleteEvent, refetch } = useCareEvents(selectedPatientId)
   const { toast } = useToast()
 
+  // Debug logs para entender o estado
+  console.log('🔍 [Care] Estado atual:')
+  console.log('🔍 [Care] selectedPatientId:', selectedPatientId)
+  console.log('🔍 [Care] patients:', patients?.length || 0, 'pacientes')
+  console.log('🔍 [Care] events:', events?.length || 0, 'eventos')
+  console.log('🔍 [Care] loading:', loading)
+  console.log('🔍 [Care] searchTerm:', searchTerm)
+  console.log('🔍 [Care] categoryFilter:', categoryFilter)
+
   useEffect(() => {
     setIsVisible(true)
   }, [])

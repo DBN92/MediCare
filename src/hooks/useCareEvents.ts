@@ -22,6 +22,11 @@ export const useCareEvents = (patientId?: string) => {
 
   const fetchEvents = useCallback(async () => {
     try {
+      console.log('🔄 [useCareEvents] Iniciando fetchEvents...')
+      console.log('🔄 [useCareEvents] PatientId:', patientId)
+      console.log('🔄 [useCareEvents] User:', user)
+      console.log('🔄 [useCareEvents] IsAuthenticated:', isAuthenticated)
+      
       setLoading(true)
       let query = supabase
         .from('events')
@@ -32,18 +37,31 @@ export const useCareEvents = (patientId?: string) => {
         .order('occurred_at', { ascending: false })
 
       if (patientId) {
+        console.log('🔄 [useCareEvents] Aplicando filtro de paciente:', patientId)
         query = query.eq('patient_id', patientId)
       }
 
+      console.log('🔄 [useCareEvents] Executando query...')
       const { data, error } = await query
-      if (error) throw error
+      
+      if (error) {
+        console.error('❌ [useCareEvents] Erro na query:', error)
+        throw error
+      }
+      
+      console.log('✅ [useCareEvents] Dados recebidos:', data?.length || 0, 'registros')
+      console.log('✅ [useCareEvents] Primeiros dados:', data?.slice(0, 2))
+      
       setEvents(data || [])
+      setError(null)
     } catch (err) {
+      console.error('❌ [useCareEvents] Erro geral:', err)
       setError(err instanceof Error ? err.message : 'Erro ao carregar registros')
     } finally {
+      console.log('🏁 [useCareEvents] Finalizando fetchEvents, loading = false')
       setLoading(false)
     }
-  }, [patientId])
+  }, [patientId, user, isAuthenticated])
 
   const addEvent = useCallback(async (eventData: Omit<CareEvent, 'id' | 'created_at' | 'updated_at'>) => {
     if (!isAuthenticated || !user) {
