@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { MedicationCamera } from '@/components/MedicationCamera';
 import { 
   Pill, 
   Plus, 
@@ -18,7 +19,8 @@ import {
   XCircle,
   Info,
   Timer,
-  Zap
+  Zap,
+  Camera
 } from 'lucide-react';
 
 interface Medication {
@@ -101,6 +103,7 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [showCommonMeds, setShowCommonMeds] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
 
   useEffect(() => {
     onMedicationsChange(medications);
@@ -185,6 +188,77 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
     setShowCommonMeds(false);
   };
 
+  // Função para processar dados extraídos da câmera
+  const handleCameraDataExtracted = (data: any) => {
+    // Mapear os dados da câmera para o formato de medicação
+    const medicationFromCamera: Partial<Medication> = {
+      name: data.name || '',
+      active_ingredient: data.activeIngredient || data.name || '',
+      dosage: data.dosage || '',
+      unit: extractUnit(data.dosage) || 'mg',
+      frequency: mapFrequency(data.frequency) || '1x/dia',
+      route: data.route || 'Oral',
+      instructions: data.instructions || '',
+      prescriber: data.prescriber || '',
+      start_date: new Date().toISOString().split('T')[0]
+    };
+
+    addMedication(medicationFromCamera);
+    setShowCamera(false);
+  };
+
+  // Função auxiliar para extrair unidade da dosagem
+  const extractUnit = (dosage: string): string => {
+    if (!dosage) return 'mg';
+    
+    const unitMatches = dosage.match(/(mg|g|mcg|ml|L|UI|comprimido|cápsula|gota|colher|ampola|frasco|aplicação)/i);
+    if (unitMatches) {
+      const unit = unitMatches[1].toLowerCase();
+      // Mapear para as unidades disponíveis
+      const unitMap: { [key: string]: string } = {
+        'mg': 'mg',
+        'g': 'g',
+        'mcg': 'mcg',
+        'ml': 'ml',
+        'l': 'L',
+        'ui': 'UI',
+        'comprimido': 'comprimido(s)',
+        'cápsula': 'cápsula(s)',
+        'gota': 'gota(s)',
+        'colher': 'colher(es)',
+        'ampola': 'ampola(s)',
+        'frasco': 'frasco(s)',
+        'aplicação': 'aplicação(ões)'
+      };
+      return unitMap[unit] || 'mg';
+    }
+    
+    return 'mg';
+  };
+
+  // Função auxiliar para mapear frequência
+  const mapFrequency = (frequency: string): string => {
+    if (!frequency) return '1x/dia';
+    
+    const freq = frequency.toLowerCase();
+    
+    if (freq.includes('1') || freq.includes('uma vez') || freq.includes('1x')) {
+      return '1x/dia';
+    } else if (freq.includes('2') || freq.includes('duas vezes') || freq.includes('2x') || freq.includes('12/12')) {
+      return '2x/dia';
+    } else if (freq.includes('3') || freq.includes('três vezes') || freq.includes('3x') || freq.includes('8/8')) {
+      return '3x/dia';
+    } else if (freq.includes('4') || freq.includes('quatro vezes') || freq.includes('4x') || freq.includes('6/6')) {
+      return '4x/dia';
+    } else if (freq.includes('6') || freq.includes('seis vezes') || freq.includes('6x') || freq.includes('4/4')) {
+      return '6x/dia';
+    } else if (freq.includes('sos') || freq.includes('necessário')) {
+      return 'SOS';
+    }
+    
+    return '1x/dia';
+  };
+
   const getStatusColor = (status: Medication['status']) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800';
@@ -241,6 +315,16 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
           Medicamentos
           {!readOnly && (
             <div className="ml-auto flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCamera(true)}
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+              >
+                <Camera className="h-4 w-4 mr-1" />
+                Capturar Receita
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -643,6 +727,13 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
           </div>
         )}
       </CardContent>
+
+      {/* Camera Modal */}
+      <MedicationCamera
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onDataExtracted={handleCameraDataExtracted}
+      />
     </Card>
   );
 };

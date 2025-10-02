@@ -35,6 +35,7 @@ import CreateWhiteLabelClient from "./pages/CreateWhiteLabelClient";
 import ThemeConfigurator from "./pages/ThemeConfigurator";
 import AssetManager from "./pages/AssetManager";
 import SuperAdminTestPage from "./pages/SuperAdminTestPage";
+import MobileCaptureReceita from "./pages/MobileCaptureReceita";
 
 
 const queryClient = new QueryClient();
@@ -73,6 +74,9 @@ const AppContent = () => {
               <Dashboard />
             </Layout>
           } />
+
+          {/* Rota pública para captura mobile via QR Code */}
+          <Route path="/mobile-capture/:sessionId" element={<MobileCaptureReceita />} />
 
           {/* Rotas do Super Admin */}
           <Route path="/super-admin/login" element={<SuperAdminLogin />} />
