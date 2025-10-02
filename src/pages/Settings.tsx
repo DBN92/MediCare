@@ -595,9 +595,9 @@ export default function Settings() {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-purple-50/30 via-white to-blue-50/30 overflow-hidden">
       <div className="h-full flex flex-col">
-        <div className="flex items-center gap-2 p-6 backdrop-blur-sm bg-white/70 border-b border-white/20 shadow-sm flex-shrink-0">
-          <SettingsIcon className="h-6 w-6 text-purple-600" />
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 p-4 sm:p-6 backdrop-blur-sm bg-white/70 border-b border-white/20 shadow-sm flex-shrink-0">
+          <SettingsIcon className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
             Configurações da Plataforma
           </h1>
         </div>
@@ -605,62 +605,62 @@ export default function Settings() {
         <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden">
           <div className="w-full backdrop-blur-sm bg-white/70 border-b border-white/20 shadow-sm flex-shrink-0">
             <TabsList className="w-full h-auto p-1 bg-transparent justify-start overflow-x-auto scrollbar-hide">
-              <div className="flex gap-1 min-w-max">
+              <div className="flex gap-1 min-w-max px-2 sm:px-0">
                 <TabsTrigger 
                   value="profile" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <User className="h-4 w-4 flex-shrink-0" />
-                  Perfil
+                  <User className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Perfil</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="branding" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <Image className="h-4 w-4 flex-shrink-0" />
-                  Logo
+                  <Image className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Logo</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="users" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <Users className="h-4 w-4 flex-shrink-0" />
-                  Usuários
+                  <Users className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Usuários</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="hospitals" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <Building2 className="h-4 w-4 flex-shrink-0" />
-                  Hospitais
+                  <Building2 className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Hospitais</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="permissions" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <Shield className="h-4 w-4 flex-shrink-0" />
-                  Permissões
+                  <Shield className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Permissões</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="chat" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <Bot className="h-4 w-4 flex-shrink-0" />
-                  Chat IA
+                  <Bot className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Chat IA</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="history" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <History className="h-4 w-4 flex-shrink-0" />
-                  Histórico
+                  <History className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Histórico</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="logs" 
-                  className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-4 py-2.5 rounded-md"
+                  className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-blue-500 data-[state=active]:text-white transition-all duration-300 whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-md text-xs sm:text-sm"
                 >
-                  <FileText className="h-4 w-4 flex-shrink-0" />
-                  Logs
+                  <FileText className="h-4 w-4 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden xs:inline">Logs</span>
                 </TabsTrigger>
               </div>
             </TabsList>
@@ -888,70 +888,75 @@ export default function Settings() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Função</TableHead>
-                    <TableHead>Hospital</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Criado em</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={getRoleBadgeVariant(user.role) as "default" | "secondary" | "destructive" | "outline"}>
-                          {getRoleLabel(user.role)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{user.hospital}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
-                          {user.status === 'active' ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{new Date(user.createdAt).toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[120px]">Nome</TableHead>
+                      <TableHead className="min-w-[180px]">Email</TableHead>
+                      <TableHead className="min-w-[100px]">Função</TableHead>
+                      <TableHead className="min-w-[120px] hidden sm:table-cell">Hospital</TableHead>
+                      <TableHead className="min-w-[80px]">Status</TableHead>
+                      <TableHead className="min-w-[100px] hidden md:table-cell">Criado em</TableHead>
+                      <TableHead className="text-right min-w-[100px]">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell className="break-all">{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={getRoleBadgeVariant(user.role) as "default" | "secondary" | "destructive" | "outline"}>
+                            {getRoleLabel(user.role)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">{user.hospital}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
+                            {user.status === 'active' ? 'Ativo' : 'Inativo'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1 sm:gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditUser(user)}
+                              className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                            >
+                              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="sr-only sm:not-sr-only sm:ml-2">Editar</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteUser(user.id)}
+                              className="text-red-600 hover:text-red-700 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                            >
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="sr-only sm:not-sr-only sm:ml-2">Excluir</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Gestão de Hospitais */}
-        <TabsContent value="hospitals" className="flex-1 overflow-y-auto p-6">
+        <TabsContent value="hospitals" className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Card className="max-w-7xl mx-auto">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>Gestão de Hospitais</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-lg sm:text-xl">Gestão de Hospitais</CardTitle>
+                  <CardDescription className="text-sm sm:text-base">
                     Gerencie os hospitais onde os pacientes são registrados
                   </CardDescription>
                 </div>
@@ -960,7 +965,7 @@ export default function Settings() {
                     <Button onClick={() => {
                       setEditingHospital(null)
                       setHospitalForm({ name: '', address: '', phone: '', email: '', status: 'active' })
-                    }}>
+                    }} className="w-full sm:w-auto">
                       <Plus className="h-4 w-4 mr-2" />
                       Novo Hospital
                     </Button>
@@ -1035,54 +1040,59 @@ export default function Settings() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Endereço</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Criado em</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {hospitals.map((hospital) => (
-                    <TableRow key={hospital.id}>
-                      <TableCell className="font-medium">{hospital.name}</TableCell>
-                      <TableCell>{hospital.address}</TableCell>
-                      <TableCell>{hospital.phone}</TableCell>
-                      <TableCell>{hospital.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={hospital.status === 'active' ? 'default' : 'secondary'}>
-                          {hospital.status === 'active' ? 'Ativo' : 'Inativo'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{new Date(hospital.createdAt).toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditHospital(hospital)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteHospital(hospital.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[120px]">Nome</TableHead>
+                      <TableHead className="min-w-[150px] hidden sm:table-cell">Endereço</TableHead>
+                      <TableHead className="min-w-[120px]">Telefone</TableHead>
+                      <TableHead className="min-w-[180px] hidden md:table-cell">Email</TableHead>
+                      <TableHead className="min-w-[80px]">Status</TableHead>
+                      <TableHead className="min-w-[100px] hidden lg:table-cell">Criado em</TableHead>
+                      <TableHead className="text-right min-w-[100px]">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {hospitals.map((hospital) => (
+                      <TableRow key={hospital.id}>
+                        <TableCell className="font-medium">{hospital.name}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{hospital.address}</TableCell>
+                        <TableCell>{hospital.phone}</TableCell>
+                        <TableCell className="hidden md:table-cell break-all">{hospital.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={hospital.status === 'active' ? 'default' : 'secondary'}>
+                            {hospital.status === 'active' ? 'Ativo' : 'Inativo'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">{new Date(hospital.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1 sm:gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditHospital(hospital)}
+                              className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                            >
+                              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="sr-only sm:not-sr-only sm:ml-2">Editar</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteHospital(hospital.id)}
+                              className="text-red-600 hover:text-red-700 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
+                            >
+                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              <span className="sr-only sm:not-sr-only sm:ml-2">Excluir</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1186,7 +1196,7 @@ export default function Settings() {
                     Configurações da API
                   </h3>
                   
-                  <div className="grid gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
                       <Label htmlFor="api-key">Chave da API OpenAI</Label>
                       <div className="relative">
@@ -1212,7 +1222,7 @@ export default function Settings() {
                           )}
                         </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Sua chave da API OpenAI para usar o chat assistente
                       </p>
                     </div>
@@ -1241,7 +1251,7 @@ export default function Settings() {
                     Parâmetros do Modelo
                   </h3>
                   
-                  <div className="grid gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
                       <Label htmlFor="temperature">Temperatura: {chatSettings.temperature}</Label>
                       <input
@@ -1254,7 +1264,7 @@ export default function Settings() {
                         onChange={(e) => handleChatSettingChange('temperature', parseFloat(e.target.value))}
                         className="w-full"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Controla a criatividade das respostas (0 = mais focado, 2 = mais criativo)
                       </p>
                     </div>
@@ -1269,7 +1279,7 @@ export default function Settings() {
                         value={chatSettings.maxTokens}
                         onChange={(e) => handleChatSettingChange('maxTokens', parseInt(e.target.value))}
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Número máximo de tokens na resposta
                       </p>
                     </div>
@@ -1286,7 +1296,7 @@ export default function Settings() {
                         onChange={(e) => handleChatSettingChange('presencePenalty', parseFloat(e.target.value))}
                         className="w-full"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Penaliza a repetição de tópicos já mencionados
                       </p>
                     </div>
@@ -1303,7 +1313,7 @@ export default function Settings() {
                         onChange={(e) => handleChatSettingChange('frequencyPenalty', parseFloat(e.target.value))}
                         className="w-full"
                       />
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         Penaliza a repetição de palavras específicas
                       </p>
                     </div>
@@ -1475,92 +1485,92 @@ export default function Settings() {
             <CardContent>
               <div className="space-y-4">
                 {/* Estatísticas dos Logs */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-6">
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-primary">Info</p>
-                        <p className="text-2xl font-bold text-primary">
+                        <p className="text-xs sm:text-sm font-medium text-primary">Info</p>
+                        <p className="text-lg sm:text-2xl font-bold text-primary">
                           {logStats.info}
                         </p>
                       </div>
-                      <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
-                        <FileText className="h-4 w-4 text-primary" />
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-yellow-600">Warning</p>
-                        <p className="text-2xl font-bold text-yellow-700">
+                        <p className="text-xs sm:text-sm font-medium text-yellow-600">Warning</p>
+                        <p className="text-lg sm:text-2xl font-bold text-yellow-700">
                           {logStats.warning}
                         </p>
                       </div>
-                      <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <FileText className="h-4 w-4 text-yellow-600" />
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-red-600">Error</p>
-                        <p className="text-2xl font-bold text-red-700">
+                        <p className="text-xs sm:text-sm font-medium text-red-600">Error</p>
+                        <p className="text-lg sm:text-2xl font-bold text-red-700">
                           {logStats.error}
                         </p>
                       </div>
-                      <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <FileText className="h-4 w-4 text-red-600" />
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 bg-red-100 rounded-full flex items-center justify-center">
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Total</p>
-                        <p className="text-2xl font-bold text-gray-700">{logStats.total}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-600">Total</p>
+                        <p className="text-lg sm:text-2xl font-bold text-gray-700">{logStats.total}</p>
                       </div>
-                      <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
-                        <FileText className="h-4 w-4 text-gray-600" />
+                      <div className="h-6 w-6 sm:h-8 sm:w-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600" />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Tabela de Logs */}
-                <div className="border rounded-lg">
+                <div className="border rounded-lg overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Timestamp</TableHead>
-                        <TableHead>Nível</TableHead>
-                        <TableHead>Ação</TableHead>
-                        <TableHead>Usuário</TableHead>
-                        <TableHead>Detalhes</TableHead>
-                        <TableHead>IP</TableHead>
+                        <TableHead className="min-w-[120px] text-xs sm:text-sm">Timestamp</TableHead>
+                        <TableHead className="min-w-[80px] text-xs sm:text-sm">Nível</TableHead>
+                        <TableHead className="min-w-[100px] text-xs sm:text-sm">Ação</TableHead>
+                        <TableHead className="min-w-[80px] text-xs sm:text-sm">Usuário</TableHead>
+                        <TableHead className="min-w-[150px] text-xs sm:text-sm">Detalhes</TableHead>
+                        <TableHead className="min-w-[80px] text-xs sm:text-sm">IP</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredLogs.map((log) => (
                         <TableRow key={log.id}>
-                          <TableCell className="font-mono text-sm">
+                          <TableCell className="font-mono text-xs sm:text-sm">
                             {formatTimestamp(log.timestamp)}
                           </TableCell>
                           <TableCell>
-                            <Badge variant={getLogLevelBadgeVariant(log.level) as any}>
+                            <Badge variant={getLogLevelBadgeVariant(log.level) as any} className="text-xs">
                               {log.level.toUpperCase()}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-medium">{log.action}</TableCell>
-                          <TableCell>{log.user}</TableCell>
-                          <TableCell className="max-w-xs truncate" title={log.details}>
+                          <TableCell className="font-medium text-xs sm:text-sm">{log.action}</TableCell>
+                          <TableCell className="text-xs sm:text-sm">{log.user}</TableCell>
+                          <TableCell className="max-w-[150px] sm:max-w-xs truncate text-xs sm:text-sm" title={log.details}>
                             {log.details}
                           </TableCell>
-                          <TableCell className="font-mono text-sm text-muted-foreground">
+                          <TableCell className="font-mono text-xs sm:text-sm text-muted-foreground">
                             {log.ip || '-'}
                           </TableCell>
                         </TableRow>

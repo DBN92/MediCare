@@ -19,6 +19,30 @@ function isValidApiKey(apiKey: string): boolean {
   return true;
 }
 
+// Função para obter a API key, priorizando a variável de ambiente
+function getApiKey(): string {
+  // Primeiro, tenta obter da variável de ambiente (Coolify)
+  const envApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (envApiKey && isValidApiKey(envApiKey)) {
+    return envApiKey;
+  }
+  
+  // Se não houver na variável de ambiente, tenta obter do localStorage
+  try {
+    const settings = localStorage.getItem('chatSettings');
+    if (settings) {
+      const parsedSettings = JSON.parse(settings);
+      if (parsedSettings.apiKey && isValidApiKey(parsedSettings.apiKey)) {
+        return parsedSettings.apiKey;
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar configurações do chat:', error);
+  }
+  
+  return '';
+}
+
 // Função para obter as configurações do chat do localStorage
 function getChatSettings() {
   try {
@@ -32,7 +56,7 @@ function getChatSettings() {
   
   // Configurações padrão se não houver no localStorage
   return {
-    apiKey: '', // Não usar variável de ambiente como padrão por segurança
+    apiKey: getApiKey(), // Usar a função que prioriza a variável de ambiente
     model: 'gpt-3.5-turbo',
     temperature: 0.7,
     maxTokens: 1000,
@@ -59,13 +83,16 @@ Sempre seja preciso, profissional e mantenha a confidencialidade médica. Respon
 // Configuração da API OpenAI usando as configurações salvas
 let chatSettings = getChatSettings();
 
+// Obter a API key priorizando a variável de ambiente
+const apiKey = getApiKey();
+
 // Verifica se a API key está configurada e é válida
-if (!isValidApiKey(chatSettings.apiKey)) {
+if (!isValidApiKey(apiKey)) {
   console.warn('API key da OpenAI não está configurada ou é inválida. O chat não funcionará.');
 }
 
 const openai = new OpenAI({
-  apiKey: chatSettings.apiKey || 'sk-invalid', // Usar chave inválida se não houver uma válida
+  apiKey: apiKey || 'sk-invalid', // Usar chave inválida se não houver uma válida
   dangerouslyAllowBrowser: true
 });
 
@@ -116,8 +143,11 @@ export class OpenAIService {
       // Recarrega as configurações antes de cada chamada
       chatSettings = getChatSettings();
 
+      // Obter a API key priorizando a variável de ambiente
+      const currentApiKey = getApiKey();
+
       // Verifica se a API key está disponível e é válida
-      if (!isValidApiKey(chatSettings.apiKey)) {
+      if (!isValidApiKey(currentApiKey)) {
         console.error('API key da OpenAI não configurada ou inválida');
         return {
           message: 'Desculpe, o serviço de chat não está disponível no momento. A chave da API OpenAI não está configurada corretamente. Por favor, configure uma chave válida nas configurações.',
@@ -127,7 +157,7 @@ export class OpenAIService {
 
       // Recria a instância do OpenAI com a nova API key se necessário
       const currentOpenAI = new OpenAI({
-        apiKey: chatSettings.apiKey,
+        apiKey: currentApiKey,
         dangerouslyAllowBrowser: true
       });
 

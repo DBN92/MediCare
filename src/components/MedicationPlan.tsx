@@ -112,18 +112,24 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     if (!newMedication.name || !newMedication.dose) {
       toast({
         title: "Erro",
-        description: "Nome e dose são obrigatórios.",
-        variant: "destructive",
+        description: "Nome e dose são obrigatórios",
+        variant: "destructive"
       })
       return
     }
 
     try {
       await addMedication({
-        ...newMedication,
         patient_id: patientId,
-        start_date: new Date().toISOString().split('T')[0]
+        name: newMedication.name,
+        dose: newMedication.dose,
+        frequency: newMedication.frequency,
+        times: newMedication.times,
+        start_date: new Date().toISOString().split('T')[0],
+        instructions: newMedication.instructions,
+        is_active: newMedication.is_active
       })
+
       setNewMedication({
         name: '',
         dose: '',
@@ -133,16 +139,16 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
         is_active: true
       })
       setShowAddModal(false)
+
       toast({
-        title: "Medicamento adicionado",
-        description: `${newMedication.name} foi adicionado ao plano de medicação.`,
-        variant: "default",
+        title: "Sucesso",
+        description: "Medicamento adicionado com sucesso"
       })
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar o medicamento.",
-        variant: "destructive",
+        description: "Erro ao adicionar medicamento",
+        variant: "destructive"
       })
     }
   }
@@ -151,28 +157,16 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     try {
       await removeMedication(medicationId)
       toast({
-        title: "Medicamento removido",
-        description: "O medicamento foi removido do plano.",
-        variant: "default",
+        title: "Sucesso",
+        description: "Medicamento removido com sucesso"
       })
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível remover o medicamento.",
-        variant: "destructive",
+        description: "Erro ao remover medicamento",
+        variant: "destructive"
       })
     }
-  }
-
-  const isAdministered = (medication: Medication, time: string, date: string) => {
-    return administrations.some(admin => {
-      const adminDate = new Date(admin.scheduled_time).toISOString().split('T')[0]
-      const adminTime = new Date(admin.scheduled_time).toTimeString().slice(0, 5)
-      return admin.medication_id === medication.id &&
-        adminTime === time &&
-        adminDate === date &&
-        admin.status === 'administered'
-    })
   }
 
   const handleMarkAsAdministered = async (medication: Medication, time: string) => {
@@ -190,24 +184,34 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
       if (administration) {
         await markAsAdministered(administration.id)
         toast({
-          title: "Administração registrada",
-          description: `${medication.name} às ${time} foi marcado como administrado.`,
-          variant: "default",
+          title: "Sucesso",
+          description: `${medication.name} marcado como administrado às ${time}`
         })
       } else {
         toast({
           title: "Erro",
-          description: "Não foi possível encontrar a administração pendente.",
-          variant: "destructive",
+          description: "Não foi possível encontrar a administração pendente",
+          variant: "destructive"
         })
       }
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível registrar a administração.",
-        variant: "destructive",
+        description: "Erro ao marcar medicamento como administrado",
+        variant: "destructive"
       })
     }
+  }
+
+  const isAdministered = (medication: Medication, time: string, date: string) => {
+    return administrations.some(admin => {
+      const adminDate = new Date(admin.scheduled_time).toISOString().split('T')[0]
+      const adminTime = new Date(admin.scheduled_time).toTimeString().slice(0, 5)
+      return admin.medication_id === medication.id &&
+        adminTime === time &&
+        adminDate === date &&
+        admin.status === 'administered'
+    })
   }
 
   const handleCameraDataExtracted = (data: any) => {
@@ -228,9 +232,9 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <span className="ml-2">Carregando plano de medicação...</span>
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin mr-2" />
+        <span>Carregando plano de medicação...</span>
       </div>
     )
   }
@@ -238,140 +242,153 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Plano de Medicação</h2>
-          <p className="text-gray-600">Paciente: {patientName}</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={() => isDesktop ? setShowQRCode(true) : setShowCamera(true)}
-            variant="outline"
-            className="flex items-center space-x-2"
-          >
-            <Camera className="w-4 h-4" />
-            <span>Capturar Receita</span>
-          </Button>
-          <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Medicamento
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Adicionar Novo Medicamento</DialogTitle>
-                <DialogDescription>
-                  Preencha as informações do medicamento para adicionar ao plano de tratamento.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nome do Medicamento</Label>
-                    <Input
-                      id="name"
-                      value={newMedication.name}
-                      onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Ex: Paracetamol"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="dose">Dose</Label>
-                    <Input
-                      id="dose"
-                      value={newMedication.dose}
-                      onChange={(e) => setNewMedication(prev => ({ ...prev, dose: e.target.value }))}
-                      placeholder="Ex: 500mg"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="frequency">Frequência</Label>
-                  <Select value={newMedication.frequency} onValueChange={handleFrequencyChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {frequencyOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>Horários</Label>
-                      <Button type="button" variant="outline" size="sm" onClick={addTime}>
-                        <Plus className="w-4 h-4 mr-1" />
-                        Adicionar Horário
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      {newMedication.times.map((time, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <Input
-                            type="time"
-                            value={time}
-                            onChange={(e) => updateTime(index, e.target.value)}
-                            className="flex-1"
-                          />
-                          {newMedication.times.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeTime(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <Label htmlFor="instructions">Instruções (opcional)</Label>
-                  <Input
-                    id="instructions"
-                    value={newMedication.instructions}
-                    onChange={(e) => setNewMedication(prev => ({ ...prev, instructions: e.target.value }))}
-                    placeholder="Ex: Tomar após as refeições"
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="is_active"
-                    checked={newMedication.is_active}
-                    onCheckedChange={(checked) => 
-                      setNewMedication(prev => ({ ...prev, is_active: !!checked }))
-                    }
-                  />
-                  <Label htmlFor="is_active">Medicamento ativo</Label>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setShowAddModal(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleAddMedication}>
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <Pill className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              Plano de Medicação
+            </h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+              Paciente: <span className="font-medium">{patientName}</span>
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button 
+              onClick={() => isDesktop ? setShowQRCode(true) : setShowCamera(true)}
+              className="w-full sm:w-auto"
+              variant="outline"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Capturar Receita</span>
+              <span className="sm:hidden">Câmera</span>
+            </Button>
+            <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+              <DialogTrigger asChild>
+                <Button className="w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
-                  <span>Adicionar</span>
+                  <span className="hidden sm:inline">Adicionar Medicamento</span>
+                  <span className="sm:hidden">Adicionar</span>
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Adicionar Novo Medicamento</DialogTitle>
+                  <DialogDescription>
+                    Preencha as informações do medicamento para adicionar ao plano de tratamento.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="name">Nome do Medicamento</Label>
+                      <Input
+                        id="name"
+                        value={newMedication.name}
+                        onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Ex: Paracetamol"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="dose">Dose</Label>
+                      <Input
+                        id="dose"
+                        value={newMedication.dose}
+                        onChange={(e) => setNewMedication(prev => ({ ...prev, dose: e.target.value }))}
+                        placeholder="Ex: 500mg"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="frequency">Frequência</Label>
+                    <Select value={newMedication.frequency} onValueChange={handleFrequencyChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {frequencyOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {(newMedication.frequency === 'custom' || newMedication.frequency === 'as_needed') && (
+                    <div>
+                      <Label>Horários Personalizados</Label>
+                      <div className="space-y-2 mt-2">
+                        {newMedication.times.map((time, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <Input
+                              type="time"
+                              value={time}
+                              onChange={(e) => updateTime(index, e.target.value)}
+                              className="flex-1"
+                            />
+                            {newMedication.times.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeTime(index)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addTime}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Adicionar Horário
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="instructions">Instruções (opcional)</Label>
+                    <Input
+                      id="instructions"
+                      value={newMedication.instructions}
+                      onChange={(e) => setNewMedication(prev => ({ ...prev, instructions: e.target.value }))}
+                      placeholder="Ex: Tomar após as refeições"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="is_active"
+                      checked={newMedication.is_active}
+                      onCheckedChange={(checked) => 
+                        setNewMedication(prev => ({ ...prev, is_active: !!checked }))
+                      }
+                    />
+                    <Label htmlFor="is_active">Medicamento ativo</Label>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowAddModal(false)} className="w-full sm:w-auto">
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleAddMedication} className="w-full sm:w-auto">
+                    <Plus className="w-4 h-4 mr-2" />
+                    <span>Adicionar</span>
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
 
@@ -450,7 +467,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                     <Clock className="w-4 h-4" />
                     <span>Horários de administração:</span>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {medication.times.map((time, index) => {
                       const administered = isAdministered(medication, time, selectedDate)
                       return (
@@ -463,18 +480,18 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">{time}</span>
+                            <span className="font-medium text-sm sm:text-base">{time}</span>
                             <Button
                               size="sm"
                               variant={administered ? "default" : "outline"}
                               onClick={() => !administered && handleMarkAsAdministered(medication, time)}
                               disabled={administered}
-                              className="ml-2"
+                              className="ml-2 h-8 w-8 p-0"
                             >
                               {administered ? (
-                                <Check className="w-4 h-4" />
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                               ) : (
-                                <Timer className="w-4 h-4" />
+                                <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
                               )}
                             </Button>
                           </div>
@@ -495,18 +512,20 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
       {/* Resumo do Dia */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Activity className="w-5 h-5" />
-            <span>Resumo do Dia</span>
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+            <div className="flex items-center space-x-2">
+              <Activity className="w-5 h-5" />
+              <span>Resumo do Dia</span>
+            </div>
             <span className="text-sm font-normal text-gray-500">
               ({new Date(selectedDate).toLocaleDateString('pt-BR')})
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-xl sm:text-2xl font-bold text-green-600">
                 {medications.reduce((total, med) => 
                   total + med.times.filter(time => 
                     isAdministered(med, time, selectedDate)
@@ -517,7 +536,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
             </div>
             
             <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-xl sm:text-2xl font-bold text-orange-600">
                 {medications.reduce((total, med) => 
                   total + med.times.filter(time => 
                     !isAdministered(med, time, selectedDate)

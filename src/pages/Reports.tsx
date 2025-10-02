@@ -228,17 +228,17 @@ const Reports = memo(() => {
   const selectedPatient = patients.find(p => p.id === selectedPatientId)
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Relatórios</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Relatórios</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Visualize e exporte relatórios detalhados dos cuidados
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
           <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Selecionar paciente" />
             </SelectTrigger>
             <SelectContent>
@@ -256,14 +256,14 @@ const Reports = memo(() => {
           <Button 
             onClick={handleExportPDF}
             disabled={!selectedPatientId || isExporting}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Download className="h-4 w-4" />
             )}
-            Exportar PDF
+            <span className="sm:inline">Exportar PDF</span>
           </Button>
         </div>
       </div>
@@ -315,7 +315,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-1))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData.alimentosData}>
@@ -351,7 +351,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-2))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData.liquidosData}>
@@ -382,7 +382,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-3))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData.urinaData}>
@@ -418,7 +418,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-5))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData.medicacaoData}>
@@ -458,7 +458,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-7))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData.drenosData}>
@@ -491,7 +491,7 @@ const Reports = memo(() => {
                       color: "hsl(var(--chart-4))",
                     },
                   }}
-                  className="h-[300px]"
+                  className="h-[250px] sm:h-[300px]"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData.humorData}>

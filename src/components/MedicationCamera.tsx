@@ -366,12 +366,41 @@ export const MedicationCamera: React.FC<MedicationCameraProps> = ({
                       ) : isCheckingCamera ? (
                         <>
                           <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
-                          <p>Verificando câmera...</p>
+                          <p className="mb-4">Verificando câmera...</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            className="bg-white text-gray-900 hover:bg-gray-100"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Fazer Upload de Imagem
+                          </Button>
+                        </>
+                      ) : !hasCameraSupport ? (
+                        <>
+                          <AlertCircle className="h-8 w-8 mx-auto mb-2 text-yellow-400" />
+                          <p className="mb-4">Navegador não compatível com câmera</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            className="bg-white text-gray-900 hover:bg-gray-100"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Anexar Imagem
+                          </Button>
                         </>
                       ) : (
                         <>
                           <Camera className="h-8 w-8 mx-auto mb-2" />
-                          <p>Iniciando câmera...</p>
+                          <p className="mb-4">Iniciando câmera...</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            className="bg-white/20 text-white hover:bg-white/30 border-white/50"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Ou anexar imagem
+                          </Button>
                         </>
                       )}
                     </div>

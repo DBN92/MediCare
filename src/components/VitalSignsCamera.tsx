@@ -424,12 +424,44 @@ export const VitalSignsCamera: React.FC<VitalSignsCameraProps> = ({
                       ) : isCheckingCamera ? (
                         <>
                           <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin" />
-                          <p className="text-sm">Verificando câmera...</p>
+                          <p className="text-sm mb-2">Verificando câmera...</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white text-gray-900 hover:bg-gray-100"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Fazer Upload
+                          </Button>
+                        </>
+                      ) : !hasCameraSupport ? (
+                        <>
+                          <AlertCircle className="h-8 w-8 mx-auto mb-2 text-yellow-400" />
+                          <p className="text-sm mb-4">Navegador não compatível com câmera</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white text-gray-900 hover:bg-gray-100"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Anexar Imagem
+                          </Button>
                         </>
                       ) : (
                         <>
                           <Camera className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-sm">Posicione os dados aqui</p>
+                          <p className="text-sm mb-2">Posicione os dados aqui</p>
+                          <Button
+                            onClick={openFileSelector}
+                            variant="outline"
+                            size="sm"
+                            className="bg-white/20 text-white hover:bg-white/30 border-white/50"
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Ou anexar imagem
+                          </Button>
                         </>
                       )}
                     </div>

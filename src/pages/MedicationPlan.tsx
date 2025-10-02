@@ -99,11 +99,11 @@ const MedicationPlanPage: React.FC = () => {
     <div className="container mx-auto p-4">
       {/* Header com botão de voltar e trocar paciente */}
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <Button 
             variant="outline" 
             onClick={() => navigate('/patients')}
-            className="mb-4"
+            className="w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Pacientes
@@ -111,7 +111,7 @@ const MedicationPlanPage: React.FC = () => {
           <Button 
             variant="outline" 
             onClick={handleChangePatient}
-            className="mb-4"
+            className="w-full sm:w-auto"
           >
             <Users className="h-4 w-4 mr-2" />
             Trocar Paciente
