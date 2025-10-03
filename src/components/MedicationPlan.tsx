@@ -53,6 +53,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
   const [skipNotes, setSkipNotes] = useState("")
   const [skipDialog, setSkipDialog] = useState<{ med?: Medication, time?: string } | null>(null)
   const [timeFilter, setTimeFilter] = useState<'all' | 'ignored' | 'delayed'>('all')
+  const [showAdministeredModal, setShowAdministeredModal] = useState(false)
 
   // Inicializa com data local no formato YYYY-MM-DD para evitar erro de fuso
   const getLocalISODate = () => {
@@ -993,7 +994,11 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div
+              className="text-center p-4 bg-green-50 rounded-lg cursor-pointer hover:bg-green-100 transition"
+              onClick={() => setShowAdministeredModal(true)}
+              title="Ver administrações realizadas"
+            >
               <p className="text-xl sm:text-2xl font-bold text-green-600">
                 {medications.reduce((total, med) => 
                   total + med.times.filter(time => 
@@ -1040,6 +1045,77 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Administradas */}
+      <Dialog open={showAdministeredModal} onOpenChange={setShowAdministeredModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Administrações realizadas ({new Date(selectedDate).toLocaleDateString('pt-BR')})</DialogTitle>
+            <DialogDescription>
+              Lista das medicações marcadas como administradas no dia selecionado.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {(() => {
+              const administeredToday = administrations
+                .filter(admin => {
+                  const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+                  return adminDate === selectedDate && admin.status === 'administered'
+                })
+                .map(admin => {
+                  const med = medications.find(m => m.id === admin.medication_id)
+                  return {
+                    admin,
+                    med,
+                    time: toLocalHHMM(new Date(admin.scheduled_time))
+                  }
+                })
+                .filter(item => !!item.med)
+                .sort((a, b) => a.time.localeCompare(b.time))
+
+              if (administeredToday.length === 0) {
+                return (
+                  <div className="text-center text-sm text-gray-600 py-6">
+                    Nenhuma administração registrada neste dia.
+                  </div>
+                )
+              }
+
+              return (
+                <div className="space-y-3">
+                  {administeredToday.map(({ admin, med, time }, idx) => (
+                    <div key={admin.id} className="p-3 rounded-lg border bg-green-50 border-green-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm sm:text-base">{med!.name}</p>
+                          <p className="text-xs text-gray-700">Horário: {time}</p>
+                          {admin.administered_at && (
+                            <p className="text-xs text-gray-500">Marcado em: {new Date(admin.administered_at).toLocaleTimeString('pt-BR')}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              await markAsPending(admin.id)
+                            }}
+                          >
+                            Reverter
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button variant="outline" onClick={() => setShowAdministeredModal(false)}>Fechar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal da Câmera */}
       <MedicationCamera

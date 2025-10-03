@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import { attachServiceWorkerQueueListener } from './hooks/useCareEventsQueue'
 import "./index.css";
 import "./styles/animations.css";
 import "./scrollbar-handler.js";
@@ -9,6 +10,8 @@ createRoot(document.getElementById("root")!).render(<App />);
 // Registrar service worker para PWA
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
+    // listener para drenar fila via mensagens do SW
+    attachServiceWorkerQueueListener()
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {

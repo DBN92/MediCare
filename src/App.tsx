@@ -10,6 +10,7 @@ import SuperAdminProtectedRoute from "./components/superadminprotectedroute";
 import PageTransition from "./components/PageTransition";
 import BottomNavigation from "./components/BottomNavigation";
 import { VirtualAssistant, VirtualAssistantToggle } from "./components/VirtualAssistant";
+import { NotificationsOptIn } from "./components/NotificationsOptIn";
 import { useIsMobile } from "./hooks/use-mobile";
 import { useState } from "react";
 import Dashboard from "./pages/Dashboard";
@@ -148,6 +149,7 @@ const AppContent = () => {
               isOpen={isAssistantOpen}
               onToggle={() => setIsAssistantOpen(!isAssistantOpen)}
             />
+            <NotificationsOptIn />
           </>
         )}
     </>

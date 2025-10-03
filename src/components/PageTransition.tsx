@@ -26,12 +26,12 @@ export default function PageTransition({ children, className = '' }: PageTransit
 
   return (
     <div
-      className={`${className} transition-all duration-150 ease-out ${
-        isTransitioning ? 'opacity-95 scale-[0.99]' : 'opacity-100 scale-100'
+      className={`${className} transition-opacity duration-150 ease-out ${
+        isTransitioning ? 'opacity-95' : 'opacity-100'
       }`}
       style={{
         minHeight: '100dvh',
-        willChange: 'transform, opacity'
+        willChange: 'opacity'
       }}
     >
       <div className={displayLocation.pathname !== location.pathname ? 'opacity-0' : 'opacity-100 transition-opacity duration-200 ease-in-out'}>
