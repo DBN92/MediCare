@@ -134,8 +134,8 @@ const AppContent = () => {
         </Routes>
         </PageTransition>
         
-        {/* BottomNavigation - aparece sempre exceto em desktop (>=1024px) */}
-        {!isDesktop && <BottomNavigation />}
+        {/* BottomNavigation - aparece sempre exceto em desktop (>=1024px) e painel familiar */}
+        {!isDesktop && !isFamilyPanel && <BottomNavigation />}
         
         {/* VirtualAssistant - oculto no painel familiar */}
         {!isFamilyPanel && (

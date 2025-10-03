@@ -71,13 +71,16 @@
     font-size: 16px;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+    overscroll-behavior-y: contain;
   }
 
   body {
     margin: 0;
     padding: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
+    /* iOS safe-area support */
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
   .dark {
@@ -384,6 +387,31 @@
   
   .interactive:hover {
     transform: none;
+  }
+
+  /* Global touch target sizing for mobile */
+  button,
+  [role="button"],
+  .btn,
+  .tap-target {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  /* Compact container padding for mobile */
+  .container-responsive {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Improve readability of text blocks */
+  p, .text-base, .text-sm {
+    line-height: 1.5;
+  }
+
+  /* Safe sticky footer spacing utility */
+  .sticky-footer-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 }
 

@@ -30,7 +30,7 @@ export default function PageTransition({ children, className = '' }: PageTransit
         isTransitioning ? 'opacity-95 scale-[0.99]' : 'opacity-100 scale-100'
       }`}
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         willChange: 'transform, opacity'
       }}
     >

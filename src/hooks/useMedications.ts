@@ -62,11 +62,15 @@ export const useMedications = (patientId: string) => {
   // Buscar administrações de medicamentos
   const fetchAdministrations = async () => {
     try {
+      // Carregar administrações a partir do início do dia local (00:00)
+      const startOfTodayLocal = new Date()
+      startOfTodayLocal.setHours(0, 0, 0, 0)
+
       const { data, error } = await supabase
         .from('medication_administrations')
         .select('*')
         .eq('patient_id', patientId)
-        .gte('scheduled_time', new Date().toISOString().split('T')[0]) // Apenas hoje em diante
+        .gte('scheduled_time', startOfTodayLocal.toISOString())
         .order('scheduled_time', { ascending: true })
 
       if (error) throw error
@@ -186,9 +190,71 @@ export const useMedications = (patientId: string) => {
     }
   }
 
+  // Reverter administração para pendente
+  const markAsPending = async (administrationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('medication_administrations')
+        .update({
+          status: 'pending',
+          administered_at: null,
+          administered_by: null
+        })
+        .eq('id', administrationId)
+
+      if (error) throw error
+
+      await fetchAdministrations()
+
+      toast({
+        title: "Sucesso",
+        description: "Administração revertida para pendente"
+      })
+    } catch (error) {
+      console.error('Erro ao reverter para pendente:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível reverter para pendente",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Marcar administração como não administrada (skipped)
+  const markAsSkipped = async (administrationId: string, notes?: string) => {
+    try {
+      const { error } = await supabase
+        .from('medication_administrations')
+        .update({
+          status: 'skipped',
+          notes
+        })
+        .eq('id', administrationId)
+
+      if (error) throw error
+
+      await fetchAdministrations()
+
+      toast({
+        title: "Sucesso",
+        description: "Marcado como não administrado neste horário"
+      })
+    } catch (error) {
+      console.error('Erro ao marcar como não administrado:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível marcar como não administrado",
+        variant: "destructive"
+      })
+    }
+  }
+
   // Atualizar medicamento
   const updateMedication = async (id: string, updates: Partial<Medication>) => {
     try {
+      const existing = medications.find(m => m.id === id)
+      const timesChanged = Array.isArray(updates.times) && !!existing && !arraysEqual(existing.times, updates.times!)
+
       const { error } = await supabase
         .from('medications')
         .update(updates)
@@ -196,11 +262,22 @@ export const useMedications = (patientId: string) => {
 
       if (error) throw error
 
-      await fetchMedications()
+      // Se os horários foram alterados, ressincronizar futuras administrações
+      if (timesChanged) {
+        await resyncFutureAdministrations(id)
+
+        const newTimes = updates.times as string[]
+        const endDate = updates.end_date ?? existing?.end_date
+        await createScheduledAdministrationsFromNow(id, newTimes, endDate)
+      }
+
+      await Promise.all([fetchMedications(), fetchAdministrations()])
       
       toast({
         title: "Sucesso",
-        description: "Medicamento atualizado com sucesso"
+        description: timesChanged 
+          ? "Horários atualizados e futuras administrações ressincronizadas"
+          : "Medicamento atualizado com sucesso"
       })
     } catch (error) {
       console.error('Erro ao atualizar medicamento:', error)
@@ -209,6 +286,70 @@ export const useMedications = (patientId: string) => {
         description: "Não foi possível atualizar o medicamento",
         variant: "destructive"
       })
+    }
+  }
+
+  // Comparar arrays de horários (ignora ordem)
+  const arraysEqual = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false
+    const as = [...a].sort().join(',')
+    const bs = [...b].sort().join(',')
+    return as === bs
+  }
+
+  // Remover futuras administrações não administradas
+  const resyncFutureAdministrations = async (medicationId: string) => {
+    const now = new Date()
+    const { error } = await supabase
+      .from('medication_administrations')
+      .delete()
+      .eq('medication_id', medicationId)
+      .gte('scheduled_time', now.toISOString())
+      .in('status', ['pending', 'skipped', 'delayed'])
+
+    if (error) throw error
+  }
+
+  // Criar administrações programadas a partir de agora (ignora horários passados no dia atual)
+  const createScheduledAdministrationsFromNow = async (
+    medicationId: string,
+    times: string[],
+    endDate?: string
+  ) => {
+    try {
+      const administrations = []
+      const now = new Date()
+      const start = new Date(now)
+      start.setHours(0, 0, 0, 0)
+      const end = endDate ? new Date(endDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+      for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+        for (const time of times) {
+          const [hours, minutes] = time.split(':')
+          const scheduledTime = new Date(date)
+          scheduledTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+
+          // Ignorar horários passados no dia atual
+          if (scheduledTime < now) continue
+
+          administrations.push({
+            medication_id: medicationId,
+            patient_id: patientId,
+            scheduled_time: scheduledTime.toISOString(),
+            status: 'pending' as const
+          })
+        }
+      }
+
+      if (administrations.length > 0) {
+        const { error } = await supabase
+          .from('medication_administrations')
+          .insert(administrations)
+        if (error) throw error
+      }
+    } catch (error) {
+      console.error('Erro ao criar administrações (de agora):', error)
+      throw error
     }
   }
 
@@ -259,6 +400,8 @@ export const useMedications = (patientId: string) => {
     updateMedication,
     removeMedication,
     markAsAdministered,
+    markAsPending,
+    markAsSkipped,
     refetch: () => Promise.all([fetchMedications(), fetchAdministrations()])
   }
 }

@@ -61,7 +61,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted/20 relative">
+      <div className="min-h-[100dvh] flex w-full bg-muted/20 relative">
         <AppSidebar />
         <main className="flex-1 flex flex-col overflow-hidden">
           <header className={`bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40 flex-shrink-0 ${isMobile ? 'h-14' : 'h-16'}`}>
@@ -144,7 +144,10 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
           </header>
-          <div className={`flex-1 overflow-y-auto space-y-4 md:space-y-6 bg-gradient-to-br from-background to-muted/20 ${isMobile ? 'p-3 pt-4 pb-20' : 'p-4 md:p-8 pt-6'}`}>
+          <div
+            className={`flex-1 overflow-y-auto space-y-4 md:space-y-6 bg-gradient-to-br from-background to-muted/20 ${isMobile ? 'p-3 pt-4 pb-20' : 'p-4 md:p-8 pt-6'}`}
+            style={isMobile ? { paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' } : undefined}
+          >
             {children}
           </div>
         </main>
