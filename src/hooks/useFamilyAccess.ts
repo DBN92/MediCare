@@ -104,9 +104,30 @@ export const useFamilyAccess = () => {
         created_at: new Date().toISOString()
       }
       
+      // Persistir no localStorage para uso imediato neste dispositivo
       const tokens = getStoredTokens()
       tokens.push(newToken)
       saveTokens(tokens)
+
+      // Persistir no Supabase para permitir validação em outros dispositivos
+      try {
+        const { error: insertError } = await supabase
+          .from('family_access_tokens')
+          .insert({
+            patient_id: patientId,
+            token: token,
+            username: username,
+            password: password,
+            role: role,
+            is_active: true,
+            created_at: new Date().toISOString()
+          })
+        if (insertError) {
+          console.warn('⚠️ Falha ao persistir token no Supabase:', insertError.message)
+        }
+      } catch (dbErr) {
+        console.warn('⚠️ Erro inesperado ao salvar token no Supabase:', dbErr)
+      }
       
       return newToken
     } catch (err) {
@@ -196,14 +217,36 @@ export const useFamilyAccess = () => {
       }
       
       // Para pacientes reais, usar o fluxo normal
+      // Primeiro tentar validar via Supabase (produção): permite acesso em qualquer dispositivo
+      let tokenData: FamilyAccessToken | undefined
+      try {
+        const { data: dbTokens, error: dbError } = await supabase
+          .from('family_access_tokens')
+          .select('id, patient_id, token, username, password, role, is_active, created_at, revoked_at, revoked_reason')
+          .eq('patient_id', patientId)
+          .eq('token', token)
+          .eq('is_active', true)
+          .limit(1)
+        if (dbError) {
+          console.warn('⚠️ Erro ao validar token no Supabase, usando fallback local:', dbError.message)
+        } else if (dbTokens && dbTokens.length > 0) {
+          tokenData = dbTokens[0] as FamilyAccessToken
+          console.log('✅ Token validado via Supabase')
+        }
+      } catch (dbErr) {
+        console.warn('⚠️ Erro inesperado ao consultar Supabase:', dbErr)
+      }
+
+      // Fallback: verificar tokens locais quando Supabase não retorna
       const tokens = getStoredTokens()
-      console.log('📦 Tokens armazenados:', tokens.length)
-      
-      let tokenData = tokens.find(t => 
-        t.patient_id === patientId && 
-        t.token === token && 
-        t.is_active
-      )
+      if (!tokenData) {
+        console.log('📦 Tokens armazenados localmente:', tokens.length)
+        tokenData = tokens.find(t => 
+          t.patient_id === patientId && 
+          t.token === token && 
+          t.is_active
+        )
+      }
       // Não retornar imediatamente. Vamos tentar buscar o paciente
       // e, se existir, criar um token de fallback como viewer.
 
@@ -279,7 +322,7 @@ export const useFamilyAccess = () => {
 
       // Se não há token armazenado, criar um token de fallback como viewer para permitir visualização
       if (!tokenData) {
-        console.warn('⚠️ Token não encontrado no dispositivo. Criando acesso de visualização (viewer).')
+        console.warn('⚠️ Token não encontrado no Supabase nem local. Criando acesso de visualização (viewer).')
         const fallbackToken: FamilyAccessToken = {
           id: crypto.randomUUID(),
           patient_id: patientId,
@@ -290,7 +333,6 @@ export const useFamilyAccess = () => {
           is_active: true,
           created_at: new Date().toISOString()
         }
-
         const updatedTokens = [...tokens, fallbackToken]
         saveTokens(updatedTokens)
         tokenData = fallbackToken
@@ -426,13 +468,35 @@ export const useFamilyAccess = () => {
       setLoading(true)
       setError(null)
       
-      // Verificar credenciais
-      const tokens = getStoredTokens()
-      const tokenData = tokens.find(t => 
-        t.username === username && 
-        t.password === password && 
-        t.is_active
-      )
+      // Primeiro tentar autenticar via Supabase (produção)
+      let tokenData: FamilyAccessToken | undefined
+      try {
+        const { data: dbTokens, error: dbError } = await supabase
+          .from('family_access_tokens')
+          .select('id, patient_id, token, username, password, role, is_active, created_at, revoked_at, revoked_reason')
+          .eq('username', username)
+          .eq('password', password)
+          .eq('is_active', true)
+          .limit(1)
+        if (dbError) {
+          console.warn('⚠️ Erro ao autenticar no Supabase, usando fallback local:', dbError.message)
+        } else if (dbTokens && dbTokens.length > 0) {
+          tokenData = dbTokens[0] as FamilyAccessToken
+          console.log('✅ Autenticado via Supabase')
+        }
+      } catch (dbErr) {
+        console.warn('⚠️ Erro inesperado ao consultar Supabase (auth):', dbErr)
+      }
+
+      // Fallback local
+      if (!tokenData) {
+        const tokens = getStoredTokens()
+        tokenData = tokens.find(t => 
+          t.username === username && 
+          t.password === password && 
+          t.is_active
+        )
+      }
 
       if (!tokenData) {
         throw new Error('Credenciais inválidas')

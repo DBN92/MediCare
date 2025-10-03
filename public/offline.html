@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MediCare – Offline</title>
+    <meta name="theme-color" content="#16a34a" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+    <style>
+      :root { --green: #16a34a; --bg: #0b1c12; --text: #e5e7eb; --muted: #94a3b8; }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(180deg, #08120d, #0b1c12); color: var(--text); display: grid; place-items: center; }
+      .card { width: 92vw; max-width: 560px; background: rgba(6,14,10,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); backdrop-filter: blur(5px); }
+      .header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+      .title { font-size: 1.25rem; font-weight: 600; }
+      .status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(22,163,74,0.12); border: 1px solid rgba(22,163,74,0.25); color: #a7f3d0; border-radius: 999px; font-size: 0.85rem; }
+      .desc { color: var(--muted); margin: 12px 0 18px; line-height: 1.6; }
+      .actions { display: flex; gap: 10px; }
+      .btn { appearance: none; border: 1px solid rgba(255,255,255,0.14); color: var(--text); background: rgba(255,255,255,0.04); padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+      .btn.primary { border-color: rgba(22,163,74,0.5); background: rgba(22,163,74,0.18); color: #d1fae5; }
+      .small { font-size: 0.8rem; color: var(--muted); margin-top: 16px; }
+      .logo { width: 28px; height: 28px; }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main">
+      <div class="header">
+        <img src="/medicare-logo.svg" alt="MediCare" class="logo" />
+        <div class="title">Você está offline</div>
+      </div>
+      <div class="status" aria-live="polite">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 3a9 9 0 100 18 9 9 0 000-18zm1 13H11v-2h2v2zm0-4H11V7h2v5z" fill="#22c55e"/></svg>
+        Alguns recursos não estão disponíveis sem conexão
+      </div>
+      <p class="desc">Verifique sua conexão com a internet. Enquanto isso, você pode tentar recarregar a página ou voltar à página inicial quando a rede voltar.</p>
+      <div class="actions">
+        <button class="btn" onclick="location.reload()">Tentar novamente</button>
+        <a class="btn primary" href="/">Ir para início</a>
+      </div>
+      <p class="small">Dica: instale o app MediCare para uma experiência mais fluida e com suporte offline básico.</p>
+    </main>
+  </body>
+</html>

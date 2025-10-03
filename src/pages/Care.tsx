@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,6 +8,7 @@ import { CareForm } from "@/components/CareForm"
 import { ImportExportModal } from "@/components/ImportExportModal"
 import { usePatients } from "@/hooks/usePatients"
 import { useCareEvents } from "@/hooks/useCareEvents"
+import { attachServiceWorkerQueueListener } from "@/hooks/useCareEventsQueue"
 import { useToast } from "@/hooks/use-toast"
 import { 
   Heart, 
@@ -33,8 +35,12 @@ export default function Care() {
   const [showImportExport, setShowImportExport] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
   
   const { patients } = usePatients()
+  useEffect(() => {
+    attachServiceWorkerQueueListener()
+  }, [])
   const { events, loading, addEvent, deleteEvent, refetch } = useCareEvents(selectedPatientId)
   const { toast } = useToast()
 
@@ -50,6 +56,44 @@ export default function Care() {
   useEffect(() => {
     setIsVisible(true)
   }, [])
+
+  useEffect(() => {
+    const onDrained = (e: any) => {
+      const count = e?.detail?.count || 0
+      if (count > 0) {
+        toast({ title: 'Fila sincronizada', description: `${count} registros enviados ao servidor.` })
+        refetch()
+      }
+    }
+    window.addEventListener('care-queue-drained', onDrained as EventListener)
+    return () => window.removeEventListener('care-queue-drained', onDrained as EventListener)
+  }, [toast, refetch])
+
+  // Inicializar filtros a partir da URL (ex: /care?patient=...&type=meal)
+  useEffect(() => {
+    const patientParam = searchParams.get('patient')
+    const typeParam = searchParams.get('type')
+
+    if (patientParam) {
+      setSelectedPatientId(patientParam)
+    }
+
+    if (typeParam) {
+      const allowedTypes = [
+        'all',
+        'medication',
+        'vital_signs',
+        'drain',
+        'drink',
+        'mood',
+        'humor',
+        'med',
+        'meal',
+        'bathroom'
+      ]
+      setCategoryFilter(allowedTypes.includes(typeParam) ? typeParam : 'all')
+    }
+  }, [searchParams])
 
   const handleDeleteEvent = async (eventId: string) => {
     try {

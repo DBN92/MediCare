@@ -24,21 +24,45 @@ const FamilyCredentialsModal = ({ isOpen, onClose, credentials, patientName }: F
 
   const copyToClipboard = async (text: string, fieldName: string) => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopiedField(fieldName)
-      toast({
-        title: "Copiado!",
-        description: `${fieldName} copiado para a área de transferência.`
-      })
-      
-      // Reset copied state after 2 seconds
-      setTimeout(() => setCopiedField(null), 2000)
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text)
+        setCopiedField(fieldName)
+        toast({ title: "Copiado!", description: `${fieldName} copiado para a área de transferência.` })
+        setTimeout(() => setCopiedField(null), 2000)
+        return
+      }
+
+      // Fallback com textarea invisível
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.top = '0'
+      textarea.style.left = '0'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.focus()
+      textarea.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      if (ok) {
+        setCopiedField(fieldName)
+        toast({ title: "Copiado!", description: `${fieldName} copiado para a área de transferência.` })
+        setTimeout(() => setCopiedField(null), 2000)
+        return
+      }
+      throw new Error('execCommand copy failed')
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível copiar para a área de transferência.",
-        variant: "destructive"
-      })
+      // Último fallback: prompt para copiar manualmente
+      try {
+        const manual = window.prompt('Copie o texto abaixo:', text)
+        if (manual !== null) {
+          setCopiedField(fieldName)
+          toast({ title: "Copiado!", description: `${fieldName} disponível para copiar.` })
+          setTimeout(() => setCopiedField(null), 2000)
+          return
+        }
+      } catch {}
+      toast({ title: "Erro", description: "Não foi possível copiar para a área de transferência.", variant: "destructive" })
     }
   }
 

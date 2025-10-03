@@ -24,6 +24,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { attachServiceWorkerQueueListener } from '@/hooks/useCareEventsQueue'
 
 export const FamilyCareScreen = () => {
   const { patientId, token } = useParams<{ patientId: string; token: string }>()
@@ -51,6 +52,15 @@ export const FamilyCareScreen = () => {
 
   // Validation and data loading
   useEffect(() => {
+    // listener para mensagens do SW (drenagem da fila)
+    attachServiceWorkerQueueListener()
+    const onDrained = (e: any) => {
+      const count = e?.detail?.count || 0
+      if (count > 0) {
+        toast({ title: 'Fila sincronizada', description: `${count} registros enviados.` })
+      }
+    }
+    window.addEventListener('care-queue-drained', onDrained as EventListener)
     const validateAccess = async () => {
       if (!patientId || !token) {
         navigate('/family/login')
@@ -79,7 +89,8 @@ export const FamilyCareScreen = () => {
     }
 
     validateAccess()
-  }, [patientId, token, navigate, validateTokenWithData, getPermissions])
+    return () => window.removeEventListener('care-queue-drained', onDrained as EventListener)
+  }, [patientId, token, navigate, validateTokenWithData, getPermissions, toast])
 
   const careTypes = [
     { id: 'drink', label: 'Hidratação', icon: Droplets, color: 'bg-blue-500' },
@@ -96,18 +107,24 @@ export const FamilyCareScreen = () => {
     setSubmitting(true)
     try {
       const eventData = {
-         patient_id: patientId!,
-         type: careType as any,
-         occurred_at: new Date().toISOString(),
-         volume_ml: formData.volume_ml ? parseInt(formData.volume_ml) : undefined,
-         meal_desc: formData.meal_desc || undefined,
-         med_name: formData.med_name || undefined,
-         med_dose: formData.med_dose || undefined,
-         bathroom_type: formData.bathroom_type || undefined,
-         notes: formData.notes || undefined
-       }
+        patient_id: patientId!,
+        type: careType as any,
+        occurred_at: new Date().toISOString(),
+        // Campos que no schema são não-opcionais porém aceitam null
+        volume_ml: formData.volume_ml ? parseInt(formData.volume_ml) : null,
+        meal_desc: formData.meal_desc || null,
+        med_name: formData.med_name || null,
+        med_dose: formData.med_dose || null,
+        bathroom_type: formData.bathroom_type || null,
+        notes: formData.notes || null,
+        mood_scale: null
+      }
 
       await addEvent(eventData)
+      // solicita background sync para enviar fila quando possível
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'REQUEST_SYNC_CARE_EVENTS' })
+      }
       
       toast({
         title: "Registro adicionado",

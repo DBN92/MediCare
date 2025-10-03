@@ -87,7 +87,7 @@ const Dashboard = memo(() => {
       bgColor: "bg-emerald-500/10",
       change: "+18 desde ontem",
       trend: "up",
-      onClick: () => navigate('/care')
+      onClick: () => navigate('/care?type=all')
     },
     {
       title: "Alimentação",
@@ -98,7 +98,7 @@ const Dashboard = memo(() => {
       bgColor: "bg-purple-500/10",
       change: "+12 desde ontem",
       trend: "up",
-      onClick: () => navigate('/care')
+      onClick: () => navigate('/care?type=meal')
     },
     {
       title: "Alertas Pendentes",

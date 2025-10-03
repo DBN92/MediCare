@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { Tables } from '@/integrations/supabase/types'
 import { useAuth } from '@/contexts/AuthContext'
+import { enqueueCareEvent, drainCareQueue } from './useCareEventsQueue'
 
 export type CareEvent = Tables<'events'> & {
   occurred_at?: string
@@ -87,7 +88,16 @@ export const useCareEvents = (patientId?: string) => {
       
       // Log detalhado para debug
       console.log('🚀 Tentando inserir evento:', JSON.stringify(dataToInsert, null, 2))
-      
+      // Se offline, enfileira e retorna simulando sucesso
+      if (!navigator.onLine) {
+        console.warn('📡 Offline detectado, enfileirando evento')
+        enqueueCareEvent(dataToInsert as any)
+        // Atualiza lista local com registro provisório
+        const provisional = { ...(dataToInsert as any), id: `offline-${Date.now()}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+        setEvents(prev => [provisional, ...prev])
+        return provisional
+      }
+
       const { data, error } = await supabase
         .from('events')
         .insert(dataToInsert)
@@ -95,19 +105,51 @@ export const useCareEvents = (patientId?: string) => {
         .single()
 
       if (error) {
-        // Log detalhado do erro
+        // Se o erro for de rede, enfileira
         console.error('❌ Erro detalhado:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
           code: error.code
         })
+        if (error.message && /Failed to fetch|network/i.test(error.message)) {
+          console.warn('📡 Erro de rede, enfileirando evento')
+          enqueueCareEvent(dataToInsert as any)
+          const provisional = { ...(dataToInsert as any), id: `offline-${Date.now()}`, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+          setEvents(prev => [provisional, ...prev])
+          return provisional
+        }
         console.error('📊 Status da requisição:', error)
         console.error('📋 Dados enviados:', JSON.stringify(dataToInsert, null, 2))
         throw error
       }
 
       console.log('✅ Evento inserido com sucesso:', data)
+
+      // Disparar push notification via Edge Function (server-side)
+      try {
+        const token = await supabase.auth.getSession().then(r => r.data.session?.access_token)
+        const payload = {
+          title: 'Novo registro de cuidado',
+          message: `Novo evento: ${data.type}`,
+          data: {
+            event_id: data.id,
+            patient_id: data.patient_id,
+            type: data.type,
+            occurred_at: data.occurred_at
+          }
+        }
+        await fetch('/functions/v1/push-notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify(payload)
+        })
+      } catch (pushErr) {
+        console.warn('⚠️ Falha ao acionar push-notify:', pushErr)
+      }
       
       // Atualizar lista local
       setEvents(prev => [data, ...prev])
@@ -157,6 +199,14 @@ export const useCareEvents = (patientId?: string) => {
 
   useEffect(() => {
     fetchEvents()
+    // tentar drenar fila ao voltar online
+    const onOnline = async () => {
+      console.log('🌐 Voltou online, drenando fila de eventos')
+      await drainCareQueue()
+      await fetchEvents()
+    }
+    window.addEventListener('online', onOnline)
+    return () => window.removeEventListener('online', onOnline)
   }, [fetchEvents])
 
   // Memoizar o retorno para evitar re-renders desnecessários
