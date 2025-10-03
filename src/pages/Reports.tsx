@@ -281,7 +281,7 @@ const Reports = memo(() => {
           </CardContent>
         </Card>
       ) : (
-        <div id="report-content" className="space-y-6">
+        <div id="report-content" className="space-y-4 sm:space-y-6">
           {/* Header do Relatório */}
           <Card>
             <CardHeader>
@@ -295,267 +295,7 @@ const Reports = memo(() => {
             </CardHeader>
           </Card>
 
-          {/* Gráfico de Alimentos */}
-          {chartData.alimentosData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Consumo de Alimentos
-                </CardTitle>
-                <CardDescription>
-                  Percentual médio de consumo por dia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    alimentosPercent: {
-                      label: "Consumo (%)",
-                      color: "hsl(var(--chart-1))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.alimentosData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="alimentosPercent" fill="var(--color-alimentosPercent)" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Líquidos */}
-          {chartData.liquidosData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Controle de Líquidos
-                </CardTitle>
-                <CardDescription>
-                  Volume de líquidos ingeridos por dia (mL)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    liquidosML: {
-                      label: "Líquidos (mL)",
-                      color: "hsl(var(--chart-2))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData.liquidosData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line type="monotone" dataKey="liquidosML" stroke="var(--color-liquidosML)" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Urina */}
-          {chartData.urinaData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Controle de Diurese</CardTitle>
-                <CardDescription>Volume de urina por dia (mL)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    urinaML: {
-                      label: "Urina (mL)",
-                      color: "hsl(var(--chart-3))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.urinaData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="urinaML" fill="var(--color-urinaML)" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Medicação */}
-          {chartData.medicacaoData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Administração de Medicamentos
-                </CardTitle>
-                <CardDescription>
-                  Número de medicamentos administrados por dia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    medicacaoCount: {
-                      label: "Medicamentos",
-                      color: "hsl(var(--chart-5))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.medicacaoData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="medicacaoCount" fill="var(--color-medicacaoCount)" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Drenos */}
-          {chartData.drenosData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Controle de Drenos
-                </CardTitle>
-                <CardDescription>
-                  Volume de drenagem por lado (mL)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    drenoEsquerdo: {
-                      label: "Dreno Esquerdo (mL)",
-                      color: "hsl(var(--chart-6))",
-                    },
-                    drenoDireito: {
-                      label: "Dreno Direito (mL)",
-                      color: "hsl(var(--chart-7))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.drenosData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="drenoEsquerdo" fill="var(--color-drenoEsquerdo)" />
-                      <Bar dataKey="drenoDireito" fill="var(--color-drenoDireito)" />
-                      <Legend />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Humor */}
-          {chartData.humorData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Escala de Humor</CardTitle>
-                <CardDescription>Pontuação média de humor por dia (1-10)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    humorScore: {
-                      label: "Humor",
-                      color: "hsl(var(--chart-4))",
-                    },
-                  }}
-                  className="h-[250px] sm:h-[300px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData.humorData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[1, 10]} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line type="monotone" dataKey="humorScore" stroke="var(--color-humorScore)" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Gráfico de Sinais Vitais */}
-          {chartData.sinaisVitaisData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Sinais Vitais</CardTitle>
-                <CardDescription>Monitoramento dos sinais vitais</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    pressaoSistolica: {
-                      label: "Pressão Sistólica",
-                      color: "hsl(var(--chart-1))",
-                    },
-                    pressaoDiastolica: {
-                      label: "Pressão Diastólica", 
-                      color: "hsl(var(--chart-2))",
-                    },
-                    frequenciaCardiaca: {
-                      label: "Frequência Cardíaca",
-                      color: "hsl(var(--chart-3))",
-                    },
-                    temperatura: {
-                      label: "Temperatura",
-                      color: "hsl(var(--chart-4))",
-                    },
-                  }}
-                  className="h-[400px]"
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={chartData.sinaisVitaisData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="sinaisVitais.pressaoSistolica" fill="var(--color-pressaoSistolica)" name="Pressão Sistólica" />
-                      <Bar yAxisId="left" dataKey="sinaisVitais.pressaoDiastolica" fill="var(--color-pressaoDiastolica)" name="Pressão Diastólica" />
-                      <Line yAxisId="left" type="monotone" dataKey="sinaisVitais.frequenciaCardiaca" stroke="var(--color-frequenciaCardiaca)" name="Freq. Cardíaca" />
-                      <Line yAxisId="right" type="monotone" dataKey="sinaisVitais.temperatura" stroke="var(--color-temperatura)" name="Temperatura" />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Resumo Estatístico */}
+          {/* Resumo Estatístico (movido para o topo no mobile) */}
           <Card>
             <CardHeader>
               <CardTitle>Resumo do Período</CardTitle>
@@ -589,6 +329,255 @@ const Reports = memo(() => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Grade de gráficos (coluna única no mobile, duas colunas no desktop) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Gráfico de Alimentos */}
+          {chartData.alimentosData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Consumo de Alimentos
+                </CardTitle>
+                <CardDescription>
+                  Percentual médio de consumo por dia
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    alimentosPercent: {
+                      label: "Consumo (%)",
+                      color: "hsl(var(--chart-1))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <BarChart data={chartData.alimentosData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="alimentosPercent" fill="var(--color-alimentosPercent)" />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Líquidos */}
+          {chartData.liquidosData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Controle de Líquidos
+                </CardTitle>
+                <CardDescription>
+                  Volume de líquidos ingeridos por dia (mL)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    liquidosML: {
+                      label: "Líquidos (mL)",
+                      color: "hsl(var(--chart-2))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <LineChart data={chartData.liquidosData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line type="monotone" dataKey="liquidosML" stroke="var(--color-liquidosML)" strokeWidth={2} />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Urina */}
+          {chartData.urinaData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Controle de Diurese</CardTitle>
+                <CardDescription>Volume de urina por dia (mL)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    urinaML: {
+                      label: "Urina (mL)",
+                      color: "hsl(var(--chart-3))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <BarChart data={chartData.urinaData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="urinaML" fill="var(--color-urinaML)" />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Medicação */}
+          {chartData.medicacaoData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Administração de Medicamentos
+                </CardTitle>
+                <CardDescription>
+                  Número de medicamentos administrados por dia
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    medicacaoCount: {
+                      label: "Medicamentos",
+                      color: "hsl(var(--chart-5))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <BarChart data={chartData.medicacaoData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="medicacaoCount" fill="var(--color-medicacaoCount)" />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Drenos */}
+          {chartData.drenosData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Controle de Drenos
+                </CardTitle>
+                <CardDescription>
+                  Volume de drenagem por lado (mL)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    drenoEsquerdo: {
+                      label: "Dreno Esquerdo (mL)",
+                      color: "hsl(var(--chart-6))",
+                    },
+                    drenoDireito: {
+                      label: "Dreno Direito (mL)",
+                      color: "hsl(var(--chart-7))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <BarChart data={chartData.drenosData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="drenoEsquerdo" fill="var(--color-drenoEsquerdo)" />
+                    <Bar dataKey="drenoDireito" fill="var(--color-drenoDireito)" />
+                    <Legend />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Humor */}
+          {chartData.humorData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Escala de Humor</CardTitle>
+                <CardDescription>Pontuação média de humor por dia (1-10)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    humorScore: {
+                      label: "Humor",
+                      color: "hsl(var(--chart-4))",
+                    },
+                  }}
+                  className="!aspect-auto h-[220px] sm:h-[300px]"
+                >
+                  <LineChart data={chartData.humorData} margin={{ top: 8, right: 16, left: 12, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis domain={[1, 10]} tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line type="monotone" dataKey="humorScore" stroke="var(--color-humorScore)" strokeWidth={2} />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gráfico de Sinais Vitais */}
+          {chartData.sinaisVitaisData.length > 0 && (
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>Sinais Vitais</CardTitle>
+                <CardDescription>Monitoramento dos sinais vitais</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    pressaoSistolica: {
+                      label: "Pressão Sistólica",
+                      color: "hsl(var(--chart-1))",
+                    },
+                    pressaoDiastolica: {
+                      label: "Pressão Diastólica", 
+                      color: "hsl(var(--chart-2))",
+                    },
+                    frequenciaCardiaca: {
+                      label: "Frequência Cardíaca",
+                      color: "hsl(var(--chart-3))",
+                    },
+                    temperatura: {
+                      label: "Temperatura",
+                      color: "hsl(var(--chart-4))",
+                    },
+                  }}
+                  className="!aspect-auto h-[320px] sm:h-[420px]"
+                >
+                  <ComposedChart data={chartData.sinaisVitaisData} margin={{ top: 8, right: 20, left: 12, bottom: 28 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} tickMargin={12} />
+                    <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="sinaisVitais.pressaoSistolica" fill="var(--color-pressaoSistolica)" name="Pressão Sistólica" />
+                    <Bar yAxisId="left" dataKey="sinaisVitais.pressaoDiastolica" fill="var(--color-pressaoDiastolica)" name="Pressão Diastólica" />
+                    <Line yAxisId="left" type="monotone" dataKey="sinaisVitais.frequenciaCardiaca" stroke="var(--color-frequenciaCardiaca)" name="Freq. Cardíaca" />
+                    <Line yAxisId="right" type="monotone" dataKey="sinaisVitais.temperatura" stroke="var(--color-temperatura)" name="Temperatura" />
+                  </ComposedChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+          </div>
         </div>
       )}
     </div>
