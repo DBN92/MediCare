@@ -28,17 +28,26 @@ export const useCareEvents = (patientId?: string) => {
       console.log('🔄 [useCareEvents] IsAuthenticated:', isAuthenticated)
       
       setLoading(true)
+      // Selecionar apenas colunas de events para evitar problemas de parser/joins
+      const selectClause = `*`
+
+      const isValidUuid = (value: string) => {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+      }
+
       let query = supabase
         .from('events')
-        .select(`
-          *,
-          patients(full_name, bed)
-        `)
+        .select(selectClause)
         .order('occurred_at', { ascending: false })
+        .limit(200)
 
       if (patientId) {
-        console.log('🔄 [useCareEvents] Aplicando filtro de paciente:', patientId)
-        query = query.eq('patient_id', patientId)
+        if (isValidUuid(patientId)) {
+          console.log('🔄 [useCareEvents] Aplicando filtro de paciente:', patientId)
+          query = query.eq('patient_id', patientId)
+        } else {
+          console.warn('⚠️ [useCareEvents] patientId inválido para UUID, ignorando filtro:', patientId)
+        }
       }
 
       console.log('🔄 [useCareEvents] Executando query...')
@@ -49,10 +58,11 @@ export const useCareEvents = (patientId?: string) => {
         throw error
       }
       
-      console.log('✅ [useCareEvents] Dados recebidos:', data?.length || 0, 'registros')
-      console.log('✅ [useCareEvents] Primeiros dados:', data?.slice(0, 2))
+      const rows: CareEvent[] = Array.isArray(data) ? (data as CareEvent[]) : []
+      console.log('✅ [useCareEvents] Dados recebidos:', rows.length, 'registros')
+      console.log('✅ [useCareEvents] Primeiros dados:', rows.slice(0, 2))
       
-      setEvents(data || [])
+      setEvents(rows)
       setError(null)
     } catch (err) {
       console.error('❌ [useCareEvents] Erro geral:', err)

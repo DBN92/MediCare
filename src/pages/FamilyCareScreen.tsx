@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -50,7 +50,7 @@ export const FamilyCareScreen = () => {
   })
 
   // Validation and data loading
-  useState(() => {
+  useEffect(() => {
     const validateAccess = async () => {
       if (!patientId || !token) {
         navigate('/family/login')
@@ -79,7 +79,7 @@ export const FamilyCareScreen = () => {
     }
 
     validateAccess()
-  })
+  }, [patientId, token, navigate, validateTokenWithData, getPermissions])
 
   const careTypes = [
     { id: 'drink', label: 'Hidratação', icon: Droplets, color: 'bg-blue-500' },

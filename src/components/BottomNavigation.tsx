@@ -119,7 +119,13 @@ export function BottomNavigation() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full h-[70px] bg-white dark:bg-gray-900 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] z-50">
+    <nav
+      className="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-900 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] z-50"
+      style={{
+        height: 'calc(70px + env(safe-area-inset-bottom))',
+        paddingBottom: 'env(safe-area-inset-bottom)'
+      }}
+    >
       <div className="relative h-full max-w-2xl mx-auto">
         {/* Botão de scroll esquerda - apenas mobile */}
         {isMobile && canScrollLeft && (

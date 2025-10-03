@@ -45,12 +45,15 @@ const FamilyDashboard: React.FC = memo(() => {
   const location = useLocation();
   const { patientId, token: urlToken } = useParams<{ patientId: string; token: string }>();
   const { validateTokenWithData, getPermissions } = useFamilyAccess();
-  const { events, loading: eventsLoading } = useCareEvents();
   
+  // Estados devem vir antes de qualquer uso
   const [patient, setPatient] = useState<Patient | null>(null);
   const [token, setToken] = useState<FamilyAccessToken | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Inicialmente sem filtro; depois de carregar paciente, reconsultar com patient.id
+  const { events, loading: eventsLoading, refetch } = useCareEvents(patient?.id);
 
   // Determine view from URL path instead of query parameter
   const view = location.pathname.includes('/medical') ? 'medical' : 
@@ -79,23 +82,36 @@ const FamilyDashboard: React.FC = memo(() => {
         navigate('/family/login');
       } finally {
         setLoading(false);
+        // Após carregar paciente, garantir refetch com patient.id válido
+        // Evita usar patientId da URL quando não é UUID
+        try {
+          await refetch();
+        } catch (e) {
+          console.warn('Refetch após validação falhou:', e);
+        }
       }
     };
 
     validateAccess();
-  }, [navigate, validateTokenWithData, patientId, urlToken]);
+  }, [navigate, validateTokenWithData, patientId, urlToken, refetch]);
 
   // Helper functions
   const getTypeIcon = (type: string) => {
-    const icons = {
+    const normalized = type?.toLowerCase() || '';
+    const icons: Record<string, any> = {
       drink: Droplets,
+      feeding: Droplets,
       med: Pill,
+      medication: Pill,
       meal: Utensils,
+      sleep: Clock,
       note: FileText,
+      diaper: Heart,
       bathroom: Heart,
-      humor: Smile
+      mood: Smile,
+      humor: Smile,
     };
-    const Icon = icons[type as keyof typeof icons] || FileText;
+    const Icon = icons[normalized] || FileText;
     return <Icon className="h-4 w-4" />;
   };
 
@@ -112,15 +128,21 @@ const FamilyDashboard: React.FC = memo(() => {
   };
 
   const getTypeBadgeColor = (type: string) => {
-    const colors = {
+    const normalized = type?.toLowerCase() || '';
+    const colors: Record<string, string> = {
       drink: 'bg-blue-100 text-blue-800',
+      feeding: 'bg-blue-100 text-blue-800',
       med: 'bg-green-100 text-green-800',
+      medication: 'bg-green-100 text-green-800',
       meal: 'bg-orange-100 text-orange-800',
+      sleep: 'bg-indigo-100 text-indigo-800',
       note: 'bg-gray-100 text-gray-800',
+      diaper: 'bg-purple-100 text-purple-800',
       bathroom: 'bg-purple-100 text-purple-800',
-      humor: 'bg-yellow-100 text-yellow-800'
+      mood: 'bg-yellow-100 text-yellow-800',
+      humor: 'bg-yellow-100 text-yellow-800',
     };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[normalized] || 'bg-gray-100 text-gray-800';
   };
 
   const getHumorEmoji = (scale: number) => {
@@ -145,6 +167,50 @@ const FamilyDashboard: React.FC = memo(() => {
     return emojis[scale as keyof typeof emojis] || '😐';
   };
 
+  // Memoizar permissões (sempre chamar hooks antes de qualquer return)
+  const permissions = useMemo(() => {
+    if (!token) return {
+      canView: false,
+      canEdit: false,
+      canRegisterLiquids: false,
+      canRegisterMedications: false,
+      canRegisterMeals: false,
+      canRegisterActivities: false
+    };
+    return getPermissions(token.role);
+  }, [token, getPermissions]);
+
+  // Memoizar eventos do paciente
+  const patientEvents = useMemo(() => {
+    if (!patient) return [];
+    return events.filter(event => event.patient_id === patient.id);
+  }, [events, patient]);
+
+  // Memoizar último evento de humor
+  const latestHumorEvent = useMemo(() => {
+    return patientEvents
+      .filter(event => event.type === 'mood')
+      .sort((a, b) => new Date(b.occurred_at || b.created_at).getTime() - new Date(a.occurred_at || a.created_at).getTime())[0];
+  }, [patientEvents]);
+
+  // Memoizar eventos de hoje
+  const todayEvents = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return patientEvents.filter(event =>
+      (event.occurred_at || event.created_at)?.startsWith(today)
+    );
+  }, [patientEvents]);
+
+  // Memoizar estatísticas
+  const stats = useMemo(() => ({
+    liquids: todayEvents.filter(e => ['feeding', 'drink'].includes((e.type || '').toLowerCase())).length,
+    medications: todayEvents.filter(e => ['med', 'medication'].includes((e.type || '').toLowerCase())).length,
+    meals: todayEvents.filter(e => ['meal'].includes((e.type || '').toLowerCase())).length,
+    notes: todayEvents.filter(e => ['note'].includes((e.type || '') .toLowerCase())).length,
+    humor: todayEvents.filter(e => ['mood', 'humor'].includes((e.type || '').toLowerCase())).length
+  }), [todayEvents]);
+
+  // Returns condicionais depois de todos os hooks
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -173,59 +239,23 @@ const FamilyDashboard: React.FC = memo(() => {
     );
   }
 
-  // Memoizar permissões
-  const permissions = useMemo(() => {
-    if (!token) return { 
-      canView: false, 
-      canEdit: false,
-      canRegisterLiquids: false,
-      canRegisterMedications: false,
-      canRegisterMeals: false,
-      canRegisterActivities: false
-    };
-    return getPermissions(token.role);
-  }, [token, getPermissions]);
-
-  // Memoizar eventos do paciente
-  const patientEvents = useMemo(() => {
-    if (!patient) return [];
-    return events.filter(event => event.patient_id === patient.id);
-  }, [events, patient]);
-
-  // Memoizar último evento de humor
-  const latestHumorEvent = useMemo(() => {
-    return patientEvents
-      .filter(event => event.type === 'mood')
-      .sort((a, b) => new Date(b.occurred_at || b.created_at).getTime() - new Date(a.occurred_at || a.created_at).getTime())[0];
-  }, [patientEvents]);
-
-  // Memoizar eventos de hoje
-  const todayEvents = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    return patientEvents.filter(event => 
-      (event.occurred_at || event.created_at)?.startsWith(today)
-    );
-  }, [patientEvents]);
-
-  // Memoizar estatísticas
-  const stats = useMemo(() => ({
-    liquids: todayEvents.filter(e => e.type === 'feeding').length,
-    medications: todayEvents.filter(e => e.type === 'diaper').length,
-    meals: todayEvents.filter(e => e.type === 'sleep').length,
-    notes: todayEvents.filter(e => e.type === 'bathroom').length,
-    humor: todayEvents.filter(e => e.type === 'mood').length
-  }), [todayEvents]);
-
   // Helper function para labels dos tipos
   const getTypeLabel = (type: string) => {
-    const labels = {
+    const normalized = type?.toLowerCase() || '';
+    const labels: Record<string, string> = {
       feeding: 'Alimentação',
-      diaper: 'Fralda',
+      drink: 'Líquidos',
+      med: 'Medicamentos',
+      medication: 'Medicamentos',
+      meal: 'Refeição',
       sleep: 'Sono',
+      diaper: 'Fralda',
       bathroom: 'Banheiro',
-      mood: 'Humor'
+      mood: 'Humor',
+      humor: 'Humor',
+      note: 'Anotações',
     };
-    return labels[type as keyof typeof labels] || type;
+    return labels[normalized] || type;
   };
 
   const renderDashboard = () => (
@@ -346,12 +376,12 @@ const FamilyDashboard: React.FC = memo(() => {
         {patient && (
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200">
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-xl">
-              {patient.name.charAt(0).toUpperCase()}
+              {(patient.full_name || patient.name || '').charAt(0).toUpperCase()}
             </div>
           </div>
         )}
         <div>
-          <h2 className="text-2xl font-bold">{patient?.name}</h2>
+          <h2 className="text-2xl font-bold">{patient?.full_name || patient?.name}</h2>
           <p className="text-gray-600">Registrar Cuidados</p>
         </div>
       </div>

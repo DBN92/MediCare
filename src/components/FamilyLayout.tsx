@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,13 @@ export const FamilyLayout = ({ children, patient, permissions, currentPage }: Fa
   const navigate = useNavigate()
   const { patientId, token } = useParams<{ patientId: string; token: string }>()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Proteção básica: se faltar params essenciais, redireciona ao login
+  useEffect(() => {
+    if (!patientId || !token) {
+      navigate('/family/login')
+    }
+  }, [patientId, token, navigate])
 
   const navigationItems = [
     {
@@ -64,10 +71,10 @@ export const FamilyLayout = ({ children, patient, permissions, currentPage }: Fa
             {/* Patient Info - Always Visible */}
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
-                {patient.photo ? (
+                {patient?.photo ? (
                   <img 
-                    src={patient.photo} 
-                    alt={patient.full_name}
+                    src={patient.photo}
+                    alt={patient?.full_name || 'Paciente'}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -76,12 +83,12 @@ export const FamilyLayout = ({ children, patient, permissions, currentPage }: Fa
               </div>
               <div className="min-w-0">
                 <h1 className="text-sm font-semibold text-gray-900 truncate">
-                  {patient.full_name}
+                  {patient?.full_name || 'Paciente'}
                 </h1>
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
-                  <span>Leito {patient.bed}</span>
+                  <span>Leito {patient?.bed ?? '—'}</span>
                   <span>•</span>
-                  <span>{new Date(patient.birth_date).toLocaleDateString()}</span>
+                  <span>{patient?.birth_date ? new Date(patient.birth_date).toLocaleDateString() : '—'}</span>
                 </div>
               </div>
             </div>
@@ -158,13 +165,13 @@ export const FamilyLayout = ({ children, patient, permissions, currentPage }: Fa
         )}
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
+      {/* Main Content com padding inferior para evitar sobreposição */}
+      <main className="flex-1 pb-20 md:pb-0">
         {children}
       </main>
 
-      {/* Compact Footer */}
-      <footer className="bg-white border-t border-gray-200 py-2">
+      {/* Compact Footer fixo para mobile, compatível com padding do main */}
+      <footer className="bg-white border-t border-gray-200 py-2 fixed bottom-0 left-0 w-full z-40 md:static">
         <div className="px-4">
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center space-x-1">

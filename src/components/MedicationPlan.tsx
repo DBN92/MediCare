@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { useMedications, type Medication, type MedicationAdministration } from "@/hooks/useMedications"
@@ -28,6 +29,7 @@ import {
 import { MedicationCamera } from "@/components/MedicationCamera"
 import { QRCodeModal } from "@/components/QRCodeModal"
 import { useDeviceDetection } from "@/hooks/useDeviceDetection"
+import { supabase } from "@/integrations/supabase/client"
 
 interface MedicationPlanProps {
   patientId: string
@@ -44,10 +46,23 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     addMedication, 
     updateMedication, 
     removeMedication, 
-    markAsAdministered 
+    markAsAdministered,
+    markAsPending,
+    markAsSkipped
   } = useMedications(patientId)
+  const [skipNotes, setSkipNotes] = useState("")
+  const [skipDialog, setSkipDialog] = useState<{ med?: Medication, time?: string } | null>(null)
+  const [timeFilter, setTimeFilter] = useState<'all' | 'ignored' | 'delayed'>('all')
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  // Inicializa com data local no formato YYYY-MM-DD para evitar erro de fuso
+  const getLocalISODate = () => {
+    const nowLocal = new Date()
+    const y = nowLocal.getFullYear()
+    const m = String(nowLocal.getMonth() + 1).padStart(2, '0')
+    const d = String(nowLocal.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+  const [selectedDate, setSelectedDate] = useState(getLocalISODate())
   const [showAddModal, setShowAddModal] = useState(false)
   const [showCamera, setShowCamera] = useState(false)
   const [showQRCode, setShowQRCode] = useState(false)
@@ -66,6 +81,12 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000); // atualiza a cada 1 min
+    return () => clearInterval(id);
+  }, []);
 
   const frequencyOptions = [
     { value: 'once_daily', label: 'Uma vez ao dia', times: ['08:00'] },
@@ -245,27 +266,53 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     try {
       // Encontrar a administração correspondente
       const administration = administrations.find(admin => {
-        const adminDate = new Date(admin.scheduled_time).toISOString().split('T')[0]
-        const adminTime = new Date(admin.scheduled_time).toTimeString().slice(0, 5)
+        const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+        const adminTime = toLocalHHMM(new Date(admin.scheduled_time))
         return admin.medication_id === medication.id &&
           adminTime === time &&
           adminDate === selectedDate &&
           admin.status === 'pending'
       })
 
-      if (administration) {
-        await markAsAdministered(administration.id)
+      if (!administration) {
+        // Criar automaticamente a administração pendente do horário selecionado
+        const [year, month, day] = selectedDate.split('-').map(Number)
+        const [hour, minute] = time.split(':').map(Number)
+        const scheduled = new Date(year, month - 1, day, hour, minute, 0, 0)
+
+        const { data: created, error } = await supabase
+          .from('medication_administrations')
+          .insert([{ 
+            medication_id: medication.id,
+            patient_id: medication.patient_id,
+            scheduled_time: scheduled.toISOString(),
+            status: 'pending'
+          }])
+          .select()
+          .single()
+
+        if (error || !created) {
+          toast({
+            title: "Erro",
+            description: "Não foi possível criar a administração pendente",
+            variant: "destructive"
+          })
+          return
+        }
+
+        await markAsAdministered(created.id)
         toast({
           title: "Sucesso",
           description: `${medication.name} marcado como administrado às ${time}`
         })
-      } else {
-        toast({
-          title: "Erro",
-          description: "Não foi possível encontrar a administração pendente",
-          variant: "destructive"
-        })
+        return
       }
+
+      await markAsAdministered(administration.id)
+      toast({
+        title: "Sucesso",
+        description: `${medication.name} marcado como administrado às ${time}`
+      })
     } catch (error) {
       toast({
         title: "Erro",
@@ -277,12 +324,40 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
 
   const isAdministered = (medication: Medication, time: string, date: string) => {
     return administrations.some(admin => {
-      const adminDate = new Date(admin.scheduled_time).toISOString().split('T')[0]
-      const adminTime = new Date(admin.scheduled_time).toTimeString().slice(0, 5)
+      const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+      const adminTime = toLocalHHMM(new Date(admin.scheduled_time))
       return admin.medication_id === medication.id &&
         adminTime === time &&
         adminDate === date &&
         admin.status === 'administered'
+    })
+  }
+
+  const isSkipped = (medication: Medication, time: string, date: string) => {
+    return administrations.some(admin => {
+      const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+      const adminTime = toLocalHHMM(new Date(admin.scheduled_time))
+      return admin.medication_id === medication.id &&
+        adminTime === time &&
+        adminDate === date &&
+        admin.status === 'skipped'
+    })
+  }
+
+  const isDelayed = (medication: Medication, time: string, date: string) => {
+    const [year, month, day] = date.split('-').map(Number)
+    const [hour, minute] = time.split(':').map(Number)
+    const scheduled = new Date(year, month - 1, day, hour, minute, 0, 0)
+    return scheduled < now && !isAdministered(medication, time, date) && !isSkipped(medication, time, date)
+  }
+
+  const findAdministration = (medication: Medication, time: string, date: string) => {
+    return administrations.find(admin => {
+      const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+      const adminTime = toLocalHHMM(new Date(admin.scheduled_time))
+      return admin.medication_id === medication.id &&
+        adminTime === time &&
+        adminDate === date
     })
   }
 
@@ -304,6 +379,79 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     setShowCamera(false)
   }
 
+  // Utilitários para próxima medicação pendente
+  const formatHHMM = (date: Date) => date.toTimeString().slice(0, 5)
+
+  // Utilitários de data/hora locais para evitar erros de fuso horário
+  const toLocalISODate = (date: Date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+
+  const toLocalHHMM = (date: Date) => {
+    const hh = String(date.getHours()).padStart(2, '0')
+    const mm = String(date.getMinutes()).padStart(2, '0')
+    return `${hh}:${mm}`
+  }
+
+  const formatDiffHHMM = (target: Date, reference: Date) => {
+    const diffMs = target.getTime() - reference.getTime()
+    const abs = Math.abs(diffMs)
+    const hours = Math.floor(abs / (1000 * 60 * 60))
+    const minutes = Math.floor((abs % (1000 * 60 * 60)) / (1000 * 60))
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+  }
+
+  const nextPendingAdministration = (() => {
+    // Buscar todas as administrações pendentes, garantindo que o hh:mm exista no medicamento
+    const pendingAll = administrations.filter(admin => {
+      if (admin.status !== 'pending') return false
+      const med = medications.find(m => m.id === admin.medication_id)
+      if (!med) return false
+      const adminHHMM = toLocalHHMM(new Date(admin.scheduled_time))
+      return med.times?.includes(adminHHMM)
+    })
+    if (pendingAll.length === 0) return null
+    const nowTs = now.getTime()
+    const future = pendingAll.filter(a => new Date(a.scheduled_time).getTime() > nowTs)
+    if (future.length === 0) return null
+    // Escolher o pendente mais próximo no tempo (hoje ou nos próximos dias)
+    return future.reduce((best, a) => {
+      const aTs = new Date(a.scheduled_time).getTime()
+      const bestTs = new Date(best.scheduled_time).getTime()
+      return aTs < bestTs ? a : best
+    })
+  })()
+
+  const nextMedication = nextPendingAdministration
+    ? medications.find(m => m.id === nextPendingAdministration.medication_id)
+    : undefined
+  const nextScheduledDate = nextPendingAdministration
+    ? new Date(nextPendingAdministration.scheduled_time)
+    : null
+  const isOverdue = nextScheduledDate ? nextScheduledDate.getTime() < now.getTime() : false
+  const countdownHHMM = nextScheduledDate ? formatDiffHHMM(nextScheduledDate, now) : null
+
+  // Helper para obter o primeiro horário (hh:mm) de um medicamento
+  const getEarliestTime = (times: string[]) => {
+    if (!times || times.length === 0) return '99:99' // coloca sem horário no final
+    return [...times].sort((a, b) => a.localeCompare(b))[0]
+  }
+
+  // Contar pendências com base nas administrações existentes para a data selecionada
+  const totalPendentesHoje = administrations.reduce((total, admin) => {
+    const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+    if (adminDate !== selectedDate) return total
+    if (admin.status !== 'pending') return total
+    const med = medications.find(m => m.id === admin.medication_id)
+    if (!med) return total
+    const hhmm = toLocalHHMM(new Date(admin.scheduled_time))
+    if (!med.times?.includes(hhmm)) return total
+    return total + 1
+  }, 0)
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -314,7 +462,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
   }
 
   return (
-    <div className="space-y-6 max-h-screen overflow-y-auto pb-20 px-1">
+    <div className="space-y-6 pb-20 px-1">
       {/* Header */}
       <div className="mb-6 sticky top-0 bg-white z-10 pb-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-4">
@@ -326,6 +474,23 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
             <p className="text-gray-600 mt-1 text-xs sm:text-sm lg:text-base">
               Paciente: <span className="font-medium">{patientName}</span>
             </p>
+            {nextPendingAdministration && nextMedication && nextScheduledDate && countdownHHMM && (
+              <div
+                className={`mt-2 rounded-md border px-3 py-2 flex items-center gap-2 text-xs sm:text-sm lg:text-base ${
+                  isOverdue
+                    ? 'bg-orange-50 border-orange-200 text-orange-700'
+                    : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+                }`}
+              >
+                <AlertCircle className="w-4 h-4" />
+                <div className="flex-1">
+                  <span className="font-medium">Próxima medicação:</span> {nextMedication.name} às {toLocalHHMM(nextScheduledDate)}
+                  <span className="ml-2">
+                    {isOverdue ? `atrasado há ${countdownHHMM}` : `faltam ${countdownHHMM}`}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -676,7 +841,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
 
       {/* Lista de Medicamentos */}
       <div className="space-y-4">
-        {medications.length === 0 ? (
+        {medications.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Pill className="w-12 h-12 text-gray-400 mb-4" />
@@ -692,9 +857,31 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
               </Button>
             </CardContent>
           </Card>
-        ) : (
-          medications.map((medication) => (
-            <Card key={medication.id} className="overflow-hidden">
+        )}
+
+        {medications.length > 0 && totalPendentesHoje === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <Pill className="w-12 h-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Nenhuma medicação pendente hoje :)
+              </h3>
+            </CardContent>
+          </Card>
+        )}
+
+        {medications.length > 0 && totalPendentesHoje > 0 && (
+          <>
+            {[...medications]
+              .sort((a, b) => getEarliestTime(a.times).localeCompare(getEarliestTime(b.times)))
+              .map((medication) => {
+                const pendingTimes = [...medication.times].filter(time => {
+                  const admin = findAdministration(medication, time, selectedDate)
+                  return !!admin && admin.status === 'pending'
+                })
+                if (pendingTimes.length === 0) return null
+                return (
+                  <Card key={medication.id} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -734,49 +921,60 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
                     <Clock className="w-4 h-4" />
                     <span>Horários de administração:</span>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs">Filtro:</Label>
+                      <Select value={timeFilter} onValueChange={(v) => setTimeFilter(v as any)}>
+                        <SelectTrigger className="h-8 w-[160px]">
+                          <SelectValue placeholder="Todos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos</SelectItem>
+                          <SelectItem value="ignored">Ignorados</SelectItem>
+                          <SelectItem value="delayed">Atrasados</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {medication.times.map((time, index) => {
-                      const administered = isAdministered(medication, time, selectedDate)
-                      return (
-                        <div
-                          key={index}
-                          className={`p-3 rounded-lg border-2 transition-colors ${
-                            administered
-                              ? 'border-green-200 bg-green-50'
-                              : 'border-gray-200 bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-medium text-sm sm:text-base">{time}</span>
+                    {pendingTimes.sort((a, b) => a.localeCompare(b)).map((time, index) => (
+                      <div
+                        key={index}
+                        className={`p-3 rounded-lg border-2 transition-colors border-gray-200 bg-gray-50`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm sm:text-base">{time}</span>
+                          <div className="flex items-center gap-2">
                             <Button
                               size="sm"
-                              variant={administered ? "default" : "outline"}
-                              onClick={() => !administered && handleMarkAsAdministered(medication, time)}
-                              disabled={administered}
-                              className="ml-2 h-8 w-8 p-0"
+                              variant="outline"
+                              onClick={() => handleMarkAsAdministered(medication, time)}
+                              className="h-8 w-8 p-0"
                             >
-                              {administered ? (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                              ) : (
-                                <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
-                              )}
+                              <Timer className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8"
+                              onClick={() => setSkipDialog({ med: medication, time })}
+                            >
+                              Não administrar
                             </Button>
                           </div>
-                          <p className="text-xs mt-1">
-                            {administered ? "Administrado" : "Pendente"}
-                          </p>
                         </div>
-                      )
-                    })}
+                        <p className="text-xs mt-1">Pendente</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
+                )
+              })}
+          </>
         )}
       </div>
 
@@ -794,7 +992,7 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <p className="text-xl sm:text-2xl font-bold text-green-600">
                 {medications.reduce((total, med) => 
@@ -808,13 +1006,36 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
             
             <div className="text-center p-4 bg-orange-50 rounded-lg">
               <p className="text-xl sm:text-2xl font-bold text-orange-600">
+                {administrations.reduce((total, admin) => {
+                  const adminDate = toLocalISODate(new Date(admin.scheduled_time))
+                  if (adminDate !== selectedDate) return total
+                  if (admin.status !== 'pending') return total
+                  const med = medications.find(m => m.id === admin.medication_id)
+                  if (!med) return total
+                  const hhmm = toLocalHHMM(new Date(admin.scheduled_time))
+                  if (!med.times?.includes(hhmm)) return total
+                  return total + 1
+                }, 0)}
+              </p>
+              <p className="text-sm text-orange-700">Pendentes (exclui ignorados)</p>
+            </div>
+
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-xl sm:text-2xl font-bold text-gray-700">
                 {medications.reduce((total, med) => 
-                  total + med.times.filter(time => 
-                    !isAdministered(med, time, selectedDate)
-                  ).length, 0
+                  total + med.times.filter(time => isSkipped(med, time, selectedDate)).length, 0
                 )}
               </p>
-              <p className="text-sm text-orange-700">Pendentes</p>
+              <p className="text-sm text-gray-700">Ignorados</p>
+            </div>
+
+            <div className="text-center p-4 bg-red-50 rounded-lg">
+              <p className="text-xl sm:text-2xl font-bold text-red-600">
+                {medications.reduce((total, med) => 
+                  total + med.times.filter(time => isDelayed(med, time, selectedDate)).length, 0
+                )}
+              </p>
+              <p className="text-sm text-red-700">Atrasados</p>
             </div>
           </div>
         </CardContent>
@@ -833,6 +1054,73 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
         onClose={() => setShowQRCode(false)}
         onDataReceived={handleCameraDataExtracted}
       />
+      {/* Diálogo para Notas de Não Administrar */}
+      <Dialog open={!!skipDialog} onOpenChange={(open) => !open && setSkipDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Informar motivo para não administrar</DialogTitle>
+            <DialogDescription>
+              As notas são obrigatórias. Descreva o motivo para não administrar.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              value={skipNotes}
+              onChange={(e) => setSkipNotes(e.target.value)}
+              placeholder="Ex.: pressão baixa, paciente recusou, ajuste de prescrição, etc."
+              className="min-h-[120px]"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setSkipDialog(null); setSkipNotes("") }}>Cancelar</Button>
+              <Button
+                onClick={async () => {
+                  if (!skipNotes.trim() || !skipDialog?.med || !skipDialog?.time) {
+                    toast({ title: "Notas obrigatórias", description: "Por favor, informe o motivo." })
+                    return
+                  }
+                  const medication = skipDialog.med
+                  const time = skipDialog.time
+                  const existing = findAdministration(medication, time, selectedDate)
+                  try {
+                    if (existing) {
+                      await markAsSkipped(existing.id, skipNotes.trim())
+                      toast({ title: "Informação", description: `Não será administrado às ${time}` })
+                    } else {
+                      const [year, month, day] = selectedDate.split('-').map(Number)
+                      const [hour, minute] = time.split(':').map(Number)
+                      const scheduled = new Date(year, month - 1, day, hour, minute, 0, 0)
+
+                      const { data: created, error } = await supabase
+                        .from('medication_administrations')
+                        .insert([{ 
+                          medication_id: medication.id,
+                          patient_id: medication.patient_id,
+                          scheduled_time: scheduled.toISOString(),
+                          status: 'pending'
+                        }])
+                        .select()
+                        .single()
+
+                      if (error || !created) {
+                        toast({ title: "Erro", description: "Não foi possível criar a pendência", variant: "destructive" })
+                        return
+                      }
+                      await markAsSkipped(created.id, skipNotes.trim())
+                      toast({ title: "Informação", description: `Não será administrado às ${time}` })
+                    }
+                  } catch (err) {
+                    console.error(err)
+                    toast({ title: "Erro", description: "Falha ao marcar como não administrado", variant: "destructive" })
+                  } finally {
+                    setSkipDialog(null)
+                    setSkipNotes("")
+                  }
+                }}
+              >Confirmar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
