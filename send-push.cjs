@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('dotenv').config()
 const webpush = require('web-push')
 const { createClient } = require('@supabase/supabase-js')
 

@@ -1,10 +1,23 @@
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-// Configurações do Supabase
-const supabaseUrl = 'https://envqimsupjgovuofbghj.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnFpbXN1cGpnb3Z1b2ZiZ2hqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MTEyMzQsImV4cCI6MjA3MzM4NzIzNH0.5OJAgPbqiTEomwuMzOfisow2G1m2wVxZ3nGIkekTNjU';
+// Configurações do Supabase via .env
+const supabaseUrl =
+  process.env.VITE_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  process.env.PUBLIC_SUPABASE_URL;
+
+const supabaseKey =
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Cliente Admin (service role) para confirmações automáticas de email
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
+const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : null;
 
 async function testAuthSetup() {
   console.log('🧪 Testando configuração de autenticação e profiles...\n');
@@ -33,7 +46,7 @@ async function testAuthSetup() {
     const testPassword = 'teste123456';
     const testName = `Dr. Teste Auth ${Date.now()}`;
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    let { data: authData, error: authError } = await supabase.auth.signUp({
       email: testEmail,
       password: testPassword,
       options: {
@@ -46,13 +59,39 @@ async function testAuthSetup() {
 
     if (authError) {
       console.log(`   ❌ Erro no signup: ${authError.message}`);
-      
-      // Verificar se é erro de configuração
-      if (authError.message.includes('Database error')) {
-        console.log('   💡 Possível causa: Execute o script setup-auth-profiles.sql no Supabase');
-        console.log('   📝 Ou verifique se a autenticação está habilitada no projeto Supabase');
+      // Fallback: tentar criar usuário via Admin API (service role)
+      if (supabaseAdmin) {
+        console.log('   🔄 Tentando criar usuário via Admin API...');
+        const { data: adminCreateData, error: adminCreateError } = await supabaseAdmin.auth.admin.createUser({
+          email: testEmail,
+          password: testPassword,
+          email_confirm: true,
+          user_metadata: {
+            full_name: testName,
+            role: 'doctor'
+          }
+        });
+
+        if (adminCreateError) {
+          console.log(`   ❌ Falha na criação via Admin API: ${adminCreateError.message}`);
+          if (authError.message.includes('Database error')) {
+            console.log('   💡 Possível causa: Execute o script setup-auth-profiles.sql no Supabase');
+            console.log('   📝 Ou verifique se a autenticação está habilitada no projeto Supabase');
+          }
+          return;
+        } else {
+          console.log('   ✅ Usuário criado via Admin API!');
+          authData = { user: adminCreateData.user };
+          authError = null;
+        }
+      } else {
+        // Verificar se é erro de configuração
+        if (authError.message.includes('Database error')) {
+          console.log('   💡 Possível causa: Execute o script setup-auth-profiles.sql no Supabase');
+          console.log('   📝 Ou verifique se a autenticação está habilitada no projeto Supabase');
+        }
+        return;
       }
-      return;
     }
 
     console.log('   ✅ Usuário criado via auth.signUp!');
@@ -80,7 +119,17 @@ async function testAuthSetup() {
       console.log(`   📊 Profile: ${JSON.stringify(profile, null, 2)}`);
     }
 
-    // 4. Testar login
+    // 4. Opcional: confirmar email automaticamente via Admin API
+    if (supabaseAdmin && authData.user?.id) {
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(authData.user.id, { email_confirm: true });
+        console.log('   ✉️  Email confirmado automaticamente (Admin API)');
+      } catch (e) {
+        console.log('   ⚠️  Falha ao confirmar email automaticamente:', e?.message || e);
+      }
+    }
+
+    // 5. Testar login
     console.log('\n🔐 4. Testando login...');
     const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email: testEmail,
@@ -89,6 +138,21 @@ async function testAuthSetup() {
 
     if (loginError) {
       console.log(`   ❌ Erro no login: ${loginError.message}`);
+      // Fallback: tentar confirmar email e refazer login
+      if (supabaseAdmin && authData.user?.id && (loginError.message.toLowerCase().includes('email'))) {
+        try {
+          await supabaseAdmin.auth.admin.updateUserById(authData.user.id, { email_confirm: true });
+          const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+            email: testEmail,
+            password: testPassword
+          });
+          if (!retryError) {
+            console.log('   ✅ Login realizado com sucesso após confirmação de email!');
+          }
+        } catch (e) {
+          console.log('   ⚠️  Não foi possível confirmar email automaticamente:', e?.message || e);
+        }
+      }
     } else {
       console.log('   ✅ Login realizado com sucesso!');
       console.log(`   📧 Email: ${loginData.user?.email}`);

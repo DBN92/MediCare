@@ -1,9 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Configuração simples para HTTP
+// Evitar conteúdo misto: se a página está em HTTPS e a URL for HTTP, tentar upgrade para HTTPS
+if (typeof window !== 'undefined' && window.location.protocol === 'https:' && supabaseUrl?.startsWith('http://')) {
+  const upgraded = supabaseUrl.replace(/^http:\/\//, 'https://')
+  console.warn('⚠️ VITE_SUPABASE_URL usa http em página https; tentando upgrade automático para:', upgraded)
+  supabaseUrl = upgraded
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
@@ -24,9 +30,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Log de configuração para debug
 if (typeof window !== 'undefined') {
-  console.log('🔗 Supabase Client configurado (HTTP):', {
+  const protocol = supabaseUrl?.startsWith('https://') ? 'HTTPS' : (supabaseUrl?.startsWith('http://') ? 'HTTP' : 'unknown')
+  console.log('🔗 Supabase Client configurado:', {
     url: supabaseUrl,
-    protocol: 'HTTP',
+    protocol,
     realtime: 'Habilitado'
   })
 }
