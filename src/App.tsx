@@ -52,6 +52,9 @@ const AppContent = () => {
   // Considera desktop apenas telas >= 1024px (usa a mesma lógica do useIsMobile invertida)
   const isDesktop = !isMobile;
   
+  // Ocultar atalhos na footer (BottomNavigation) na tela de login em dispositivos móveis
+  const isLoginPage = location.pathname === '/login';
+  
   return (
     <>
       <PageTransition>
@@ -135,8 +138,8 @@ const AppContent = () => {
         </Routes>
         </PageTransition>
         
-        {/* BottomNavigation - aparece sempre exceto em desktop (>=1024px) e painel familiar */}
-        {!isDesktop && !isFamilyPanel && <BottomNavigation />}
+        {/* BottomNavigation - aparece sempre exceto em desktop (>=1024px), painel familiar e login em mobile */}
+        {!isDesktop && !isFamilyPanel && !isLoginPage && <BottomNavigation />}
         
         {/* VirtualAssistant - oculto no painel familiar */}
         {!isFamilyPanel && (
