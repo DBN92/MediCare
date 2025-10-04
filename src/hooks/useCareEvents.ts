@@ -75,15 +75,33 @@ export const useCareEvents = (patientId?: string) => {
   }, [patientId, user, isAuthenticated])
 
   const addEvent = useCallback(async (eventData: Omit<CareEvent, 'id' | 'created_at' | 'updated_at'>) => {
+    // Permitir inserção no modo família quando houver token com role 'editor'
+    const hasFamilyEditorAccess = (() => {
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('bedside_family_tokens') : null
+        if (!raw) return false
+        const tokens = JSON.parse(raw) as Array<any>
+        const pid = (eventData as any)?.patient_id
+        if (!pid) return false
+        const token = tokens.find(t => t && t.patient_id === pid && t.is_active && t.role === 'editor')
+        return !!token
+      } catch {
+        return false
+      }
+    })()
+
     if (!isAuthenticated || !user) {
-      throw new Error('Usuário não autenticado')
+      if (!hasFamilyEditorAccess) {
+        throw new Error('Usuário não autenticado')
+      }
     }
 
     try {
       // Preparar dados para inserção (sem forçar updated_at)
       const dataToInsert = {
-        ...eventData
-        // created_by: user.id // Comentado temporariamente
+        ...eventData,
+        // No modo família, created_by pode ser null; RLS deve permitir
+        ...(isAuthenticated && user ? { created_by: user.id } : {})
       }
       
       // Log detalhado para debug

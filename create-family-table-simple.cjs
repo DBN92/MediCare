@@ -90,22 +90,63 @@ CREATE INDEX IF NOT EXISTS idx_family_access_tokens_active ON public.family_acce
 -- Habilitar RLS
 ALTER TABLE public.family_access_tokens ENABLE ROW LEVEL SECURITY;
 
--- Política para acesso público aos tokens válidos (para validação familiar)
-CREATE POLICY "Public can validate active family tokens" ON public.family_access_tokens
-    FOR SELECT USING (
-        is_active = true 
-        AND (expires_at IS NULL OR expires_at > NOW())
-    );
+-- Políticas RLS completas
 
--- Política para usuários autenticados verem tokens de seus pacientes
-CREATE POLICY "Users can manage family tokens for their patients" ON public.family_access_tokens
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM public.patients 
-            WHERE patients.id = family_access_tokens.patient_id 
-            AND patients.created_by = auth.uid()
-        )
-    );
+-- 1) SELECT público: validação de tokens ativos por qualquer cliente
+DROP POLICY IF EXISTS "Public can validate active family tokens" ON public.family_access_tokens;
+CREATE POLICY "Public can validate active family tokens" ON public.family_access_tokens
+  FOR SELECT USING (
+    is_active = true AND (expires_at IS NULL OR expires_at > NOW())
+  );
+
+-- 2) SELECT: usuários autenticados podem ver tokens dos seus pacientes
+DROP POLICY IF EXISTS "Users can view tokens for own patients" ON public.family_access_tokens;
+CREATE POLICY "Users can view tokens for own patients" ON public.family_access_tokens
+  FOR SELECT USING (
+    patient_id IN (
+      SELECT id FROM public.patients WHERE created_by = auth.uid()
+    )
+  );
+
+-- 3) INSERT: permitir criação de tokens quando o paciente pertence ao usuário
+DROP POLICY IF EXISTS "Users can insert tokens for own patients" ON public.family_access_tokens;
+CREATE POLICY "Users can insert tokens for own patients" ON public.family_access_tokens
+  FOR INSERT WITH CHECK (
+    patient_id IN (
+      SELECT id FROM public.patients WHERE created_by = auth.uid()
+    )
+  );
+
+-- 4) UPDATE: permitir atualização de tokens quando o paciente pertence ao usuário
+DROP POLICY IF EXISTS "Users can update tokens for own patients" ON public.family_access_tokens;
+CREATE POLICY "Users can update tokens for own patients" ON public.family_access_tokens
+  FOR UPDATE USING (
+    patient_id IN (
+      SELECT id FROM public.patients WHERE created_by = auth.uid()
+    )
+  );
+
+-- 5) DELETE: permitir remoção de tokens quando o paciente pertence ao usuário
+DROP POLICY IF EXISTS "Users can delete tokens for own patients" ON public.family_access_tokens;
+CREATE POLICY "Users can delete tokens for own patients" ON public.family_access_tokens
+  FOR DELETE USING (
+    patient_id IN (
+      SELECT id FROM public.patients WHERE created_by = auth.uid()
+    )
+  );
+
+-- 6) Admins: podem gerenciar todos os tokens
+DROP POLICY IF EXISTS "Admins can manage all family tokens" ON public.family_access_tokens;
+CREATE POLICY "Admins can manage all family tokens" ON public.family_access_tokens
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  ) WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
 `
 
     console.log(createTableSQL)

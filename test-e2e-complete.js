@@ -70,11 +70,11 @@ async function testPatientCreation() {
   console.log('\n👤 Teste 2: Criando paciente de teste...')
   
   const testPatient = {
+    name: 'João Silva Teste E2E',
     full_name: 'João Silva Teste E2E',
+    user_id: 'e2e_test_user_' + Date.now(),
     birth_date: '1980-05-15',
-    bed: 'E2E-101',
-    notes: 'Paciente de teste para validação E2E - MR-' + Date.now(),
-    is_active: true
+    notes: 'Paciente de teste para validação E2E - MR-' + Date.now()
   }
   
   try {
@@ -88,7 +88,7 @@ async function testPatientCreation() {
       return null
     }
     
-    console.log('✅ Paciente criado com sucesso:', data[0].full_name)
+    console.log('✅ Paciente criado com sucesso:', data[0].name)
     console.log('📋 ID do paciente:', data[0].id)
     return data[0]
   } catch (error) {
@@ -157,7 +157,7 @@ async function testDataRetrieval(patientId) {
       return false
     }
     
-    console.log('✅ Paciente encontrado:', patient.full_name)
+    console.log('✅ Paciente encontrado:', patient.name)
     
     // Buscar eventos do paciente
     const { data: events, error: eventsError } = await supabase

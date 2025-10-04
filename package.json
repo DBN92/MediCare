@@ -12,7 +12,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "send:push": "node send-push.cjs"
+    "send:push": "node send-push.cjs",
+    "test:supabase": "node scripts/test-supabase.cjs",
+    "gen:vapid": "node scripts/gen-vapid.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -79,6 +81,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-basic-ssl": "1.1.0",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
@@ -89,6 +92,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "vite": "^5.4.19"
+    "vite": "^5.4.19",
+    "web-push": "^3.6.7"
   }
 }
