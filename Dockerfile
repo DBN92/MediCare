@@ -24,7 +24,7 @@ WORKDIR /app
 
 # Copia arquivos de dependências primeiro para cache otimizado
 COPY package*.json ./ 
-RUN npm ci --only=production --silent
+RUN npm ci --silent
 
 # Copia código fonte
 COPY . . 
@@ -45,11 +45,7 @@ COPY nginx.conf /etc/nginx/conf.d/
 # Copia build do React/Vite 
 COPY --from=build /app/dist /usr/share/nginx/html 
 
-# Cria usuário não-root para segurança
-RUN addgroup -g 1001 -S nginx && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
-
-# Define permissões corretas
+# Define permissões corretas (imagem nginx já possui usuário/grupo nginx)
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
@@ -59,8 +55,5 @@ EXPOSE 80
 
 # Healthcheck explícito 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost/ || exit 1 
-
-# Executa como usuário não-root
-USER nginx
 
 CMD ["nginx", "-g", "daemon off;"]
