@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { openAIService, isValidApiKey } from '@/services/openai';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -134,7 +135,10 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
   };
 
   const updateMedication = (index: number, field: keyof Medication, value: any) => {
+    let targetId: string | undefined;
+    const newName = (field === 'name' && typeof value === 'string') ? value.trim() : '';
     setMedications(prev => {
+      targetId = prev[index]?.id;
       const updated = prev.map((med, i) => {
         if (i === index) {
           const updatedMed = { ...med, [field]: value };
@@ -171,6 +175,40 @@ export const MedicationManager: React.FC<MedicationManagerProps> = ({
       
       return updated;
     });
+
+    // Auto-preencher instruções com descrição breve quando o nome é alterado
+    if (field === 'name' && newName.length > 0) {
+      // Debounce para evitar chamadas excessivas
+      setTimeout(async () => {
+        try {
+          const valid = await isValidApiKey();
+          if (!valid) return;
+          const info = await openAIService.generateMedicationInfo(newName);
+          if (!info) return;
+          const sideText = info.side_effects && info.side_effects.length > 0
+            ? ` • Efeitos colaterais: ${info.side_effects.join(', ')}`
+            : '';
+          const instructions = `Para que serve: ${info.indication}${sideText}`;
+          setMedications(prev => prev.map(med => {
+            if (med.id === targetId) {
+              // Não sobrescrever se o usuário já inseriu instruções
+              if (med.instructions && med.instructions.trim().length > 0) return med;
+              // Garantir que o nome atual ainda corresponde
+              if (med.name.trim() !== newName) return med;
+              return {
+                ...med,
+                instructions,
+                indication: info.indication || med.indication,
+                side_effects: info.side_effects && info.side_effects.length > 0 ? info.side_effects : med.side_effects
+              };
+            }
+            return med;
+          }));
+        } catch (_) {
+          // Silenciar erros
+        }
+      }, 500);
+    }
   };
 
   const removeMedication = (index: number) => {

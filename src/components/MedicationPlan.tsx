@@ -78,6 +78,36 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     custom_period: 0
   })
 
+  // Auto-preencher instruções ao digitar o nome (descrição breve)
+  useEffect(() => {
+    const name = newMedication.name.trim()
+    if (!name) return
+    // Não sobrescrever se já houver instruções
+    if (newMedication.instructions && newMedication.instructions.trim().length > 0) return
+
+    const timer = setTimeout(async () => {
+      try {
+        const valid = await isValidApiKey()
+        if (!valid) return
+        const info = await openAIService.generateMedicationInfo(name)
+        if (!info) return
+        const sideText = info.side_effects && info.side_effects.length > 0
+          ? ` • Efeitos colaterais: ${info.side_effects.join(', ')}`
+          : ''
+        const instructions = `Para que serve: ${info.indication}${sideText}`
+        setNewMedication(prev => {
+          if (prev.name.trim() !== name) return prev
+          if (prev.instructions && prev.instructions.trim().length > 0) return prev
+          return { ...prev, instructions }
+        })
+      } catch (_) {
+        // Silenciar erros de geração
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [newMedication.name])
+
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -1200,3 +1230,4 @@ export const MedicationPlan = ({ patientId, patientName }: MedicationPlanProps) 
     </div>
   )
 }
+import { openAIService, isValidApiKey } from "@/services/openai"

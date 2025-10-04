@@ -133,6 +133,27 @@ export class OpenAIService {
   }
 
   /**
+   * Gera uma descrição breve de um medicamento com "para que serve" e "efeitos colaterais"
+   */
+  async generateMedicationInfo(medicationName: string): Promise<AssistantResponse> {
+    const prompt = `Você é um assistente de saúde. Gere uma descrição breve e prática para facilitar a administração do medicamento informado.
+
+Medicamento: "${medicationName}"
+
+Responda estritamente em JSON com os campos:
+- para_que_serve: uma frase objetiva explicando o uso/indicação principal
+- efeitos_colaterais: uma frase curta com efeitos colaterais comuns (se aplicável). Se não houver, use "N/A"
+
+Regras:
+- Seja conciso (máximo 2 frases por campo)
+- Português claro e acessível ao paciente
+- Não inclua conselhos médicos avançados ou substitutos de consulta
+- Não inclua chaves ou texto fora do JSON.`;
+
+    return this.sendMessage(prompt);
+  }
+
+  /**
    * Envia uma mensagem para o assistente virtual
    */
   async sendMessage(

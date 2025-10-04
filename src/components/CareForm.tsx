@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { VitalSignsCamera } from "@/components/VitalSignsCamera"
 import { VitalSignsData } from "@/services/vitalSignsOCR"
+import { openAIService, isValidApiKey } from "@/services/openai"
 import { 
   Droplets, 
   Utensils, 
@@ -67,6 +68,37 @@ export function CareForm({ patientId, onSave }: CareFormProps) {
     time: getCurrentDateTime(),
     notes: ""
   })
+
+  // Auto-preencher notas da medicação com descrição breve (para que serve e efeitos colaterais)
+  useEffect(() => {
+    const name = medicationForm.name.trim()
+    if (!name) return
+    // Não sobrescrever se o usuário já escreveu algo nas notas
+    if (medicationForm.notes && medicationForm.notes.trim().length > 0) return
+
+    const timer = setTimeout(async () => {
+      try {
+        const valid = await isValidApiKey()
+        if (!valid) return
+        const info = await openAIService.generateMedicationInfo(name)
+        if (!info) return
+        const sideText = info.side_effects && info.side_effects.length > 0
+          ? ` • Efeitos colaterais: ${info.side_effects.join(', ')}`
+          : ''
+        const notes = `Para que serve: ${info.indication}${sideText}`
+        setMedicationForm(prev => {
+          // Evitar condição de corrida se o nome mudou durante a geração
+          if (prev.name.trim() !== name) return prev
+          if (prev.notes && prev.notes.trim().length > 0) return prev
+          return { ...prev, notes }
+        })
+      } catch (_) {
+        // Silenciar erros de geração para não interromper o fluxo do usuário
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [medicationForm.name])
   
   const [drainForm, setDrainForm] = useState({
     type: "",
